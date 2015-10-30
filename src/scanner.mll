@@ -1,39 +1,13 @@
 { open Parser }
 
-let letters = ['a'-'z']
-let digits  = ['0'-'9']
-let floating_point=(left+eside)|nodecimal
-
 rule token = parse
-  [' '\r' '\n'] { token lexbuf }
- | '\t'         {TAB}
- | '#'          {COMMENT}
- | '+'          {PLUS}
- | '-' 		{MINUS}
- | '/' 		{DIVIDE}
- | '*' 		{MULTIPLY}
- | '(' 		{LBRACKET}
- | ')' 		{RBRACKET}
- | '[' 		{SQLB}
- | ']' 		{SQRB}
- | ',' 		{COMMA}
- | '.' 		{DOT}
- | ':' 		{COLON}
- | '=' 		{ASSIGN}
- | '!='         {NOTEQUAL}
- | '==' 	{EQUAL}
- | '>'          {GT}
- | '<'  	{LT}
- | '>=' 	{GTE}
- | '<=' 	{LTE}
- |  "else"      { ELSE }
- |  "if"    	{ IF }
- |  "while" 	{ WHILE }
- | "for"    	{ FOR }
- |  "int"   	{ INT }
- |  "float" 	{FLOAT}
- | "entity" 	{ENTITY}
- | "main"       {MAIN}
- | "texture"	{TEXTURE}
- | "function"   {FUNCTION}
- |  eof         { EOF }
+  [' ' '\t' '\r' '\n'] { token lexbuf }
+| '+' { PLUS }
+| '-' { MINUS }
+| '*' { TIMES }
+| '/' { DIVIDE }
+| '=' { ASSIGN }
+| ',' { SEQUENCE }
+| ['0'-'9']+ as lit { LITERAL(int_of_string lit) }
+| ['a'-'z'] as name { VARIABLE(int_of_char name - int_of_char 'a') }
+| eof { EOF }

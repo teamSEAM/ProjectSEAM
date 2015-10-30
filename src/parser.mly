@@ -1,19 +1,16 @@
 %{ open Ast %}
 
-%token PLUS MINUS MULTIPLY DIVIDE EOF 
-%token LBRACKET RBRACKET SQLB SQRB  
-%token COMMA PERIOD COLON
-%token ASSIGN NOTEQUAL EQUAL
-%token GT LT GTE LTE 
-%token ELSE IF WHILE FOR
-%token INT FLOAT
-%token ENTITY MAIN TEXTURE FUNCTION
+%token PLUS MINUS TIMES DIVIDE EOF ASSIGN SEQUENCE
+%token <int> LITERAL
+%token <int> VARIABLE
 
+%left SEQUENCE
+%right ASSIGN
 %left PLUS MINUS
 %left TIMES DIVIDE
 
 %start expr
-%type <Ast.expr> expr
+%type < Ast.expr> expr
 
 %%
 
@@ -23,3 +20,6 @@ expr:
 | expr TIMES  expr { Binop($1, Mul, $3) }
 | expr DIVIDE expr { Binop($1, Div, $3) }
 | LITERAL          { Lit($1) }
+| VARIABLE         { Var($1) }
+| VARIABLE ASSIGN expr { Asn($1, $3) }
+| expr SEQUENCE expr { Seq($1, $3) }
