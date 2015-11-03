@@ -1,6 +1,8 @@
 %{ open Ast %}
 
-%token PLUS MINUS TIMES DIVIDE EOF ASSIGN SEQUENCE
+%token PLUS MINUS TIMES DIVIDE
+%token EOL EOF ASSIGN SEQUENCE
+%token INDENT DEDENT
 %token <int> LITERAL
 %token <int> VARIABLE
 
@@ -10,7 +12,7 @@
 %left TIMES DIVIDE
 
 %start expr
-%type < Ast.expr> expr
+%type <Ast.expr> expr
 
 %%
 
