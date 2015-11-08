@@ -1,0 +1,34 @@
+function init:
+	i = 0
+	j = 0
+	if (i == j):
+		i = 2
+	else:
+		j = 2
+		if (j != (i + 4)):
+			return
+
+# ===================================
+	this is a very important method!
+  =================================== #
+
+
+entity classdef:
+	function nothing(a, b, c):
+		a + b = c#what about an awkward comment like
+this?#		c = b + a
+		# the thing above still works because there's still two tabs
+			after 'this?(pound sign)?'#
+		# you can't nest comments, unfortunately #
+		#hello#
+		a + b = c # Not wrong #
+		for (int #whoa a comment inside here!#i = 3; potato < 98; potato++):
+			e = mc^2 #so random!!!# 
+			syntax error # omg! #
+			#shouldn't matter
+				if this takes up multiple lines right?#
+		return a * b * c
+
+	function nothing2(a, b):
+		return a * b
+
