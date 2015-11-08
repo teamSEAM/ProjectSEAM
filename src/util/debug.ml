@@ -5,4 +5,5 @@ let rec string_of_expr = function
   | Seq(l, r) -> (string_of_expr l) ^ "\n" ^ (string_of_expr r)
   | Lit(l) -> "<Lit:" ^ string_of_int l ^ ">"
   | Asn(i, e) -> "<Var:" ^ string_of_int i ^ "> = " ^ string_of_expr e
-  | Var(i) -> "<Var:" ^ string_of_int i ^ ">"
+(*  | Id(i) -> "<Var:" ^ string i ^ ">"
+*)

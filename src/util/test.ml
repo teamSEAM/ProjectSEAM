@@ -4,7 +4,7 @@ let var_array = Array.make 26 0
 
 let rec eval = function
     Lit(x) -> x
-  | Var(v) -> var_array.(v)
+  | Id(v) -> var_array.(v)
   | Asn(var, expr) ->
     var_array.(var) <- (eval expr);
     var_array.(var)
