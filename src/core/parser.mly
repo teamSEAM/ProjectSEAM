@@ -1,13 +1,21 @@
 %{ open Ast %}
 
 %token PLUS MINUS TIMES DIVIDE
-%token EOL EOF ASSIGN SEQUENCE
+%token EOL EOF ASSIGN SEQUENCE 
+%token EQ NEQ LT LEQ GT GEQ RETURN IF ELSE /*SEAN */
+%token LPAREN RPAREN /* SEAN */
+
+%nonassoc NOELSE /* Precedence and associativity of each operator */
+%nonassoc ELSE
+
 %token INDENT DEDENT
 %token <int> LITERAL
-%token <int> VARIABLE
+%token <string> ID
 
 %left SEQUENCE
 %right ASSIGN
+%left EQ NEQ /*SEAN*/
+%left LT GT LEQ GEQ /*SEAN*/
 %left PLUS MINUS
 %left TIMES DIVIDE
 
@@ -22,6 +30,17 @@ expr:
 | expr TIMES  expr { Binop($1, Mul, $3) }
 | expr DIVIDE expr { Binop($1, Div, $3) }
 | LITERAL          { Lit($1) }
-| VARIABLE         { Var($1) }
+| ID         { Id($1) }
 | VARIABLE ASSIGN expr { Asn($1, $3) }
 | expr SEQUENCE expr { Seq($1, $3) }
+| expr EQ expr { Binop($1, Equal, $3) }/*SEAN START HERE*/
+| expr NEQ expr { Binop($1, Neq, $3) }
+| expr LT expr { Binop($1, Less, $3) }
+| expr LEQ expr { Binop($1, Leq, $3) }
+| expr GT expr { Binop($1, Greater, $3) }
+| expr GEQ expr { Binop($1, Geq, $3) }
+| LPAREN expr RPAREN { $2 }/*SEAN DONE HERE*/
+
+stmt:
+| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } /* SEAN */
+| IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) } /* SEAN */
