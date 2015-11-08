@@ -71,7 +71,6 @@ parse [' ' '\t' '\r' '\n'] { token lexbuf }
 |"texture" {TEXTURE}
 |"function" {FUNCTION}
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
-
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 | eof { EOF } 

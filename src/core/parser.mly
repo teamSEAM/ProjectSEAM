@@ -47,8 +47,7 @@ expr:
 | expr GT expr { Binop($1, Greater, $3) }
 | expr GEQ expr { Binop($1, Geq, $3) }
 
-/*
+
 stmt:
 | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
 | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) } 
-*/
