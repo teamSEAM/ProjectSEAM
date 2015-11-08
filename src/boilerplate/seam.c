@@ -1,6 +1,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h> //For catching SIGINTs
 
 #include <seam.h>
 
@@ -11,6 +12,8 @@ const long MAX_STEP_DURATION = 1000 / 24; //24 steps/second
 
 //Globals
 environment env;
+
+volatile int is_running;
 
 //Supporting functions
 void _runtime_err(char* err){
@@ -26,6 +29,10 @@ void _runtime_log(char* msg){
 	fprintf(stdout, "[MSG] %s\n", err);
 }
 
+void _terminate(int signal){
+	is_running = 0;	
+}
+
 int main(int argc, char** argv){
 	//Init SDL
 	
@@ -33,8 +40,19 @@ int main(int argc, char** argv){
 	user_main(&env);
 	
 	//Main program loop
-	
-	while(true){ //No way out!
+	is_running = 1;
+
+	//Catch SIGINTs
+	struct sigaction catcher;
+	catcher.sa_handler = _terminate;
+	sigemptyset(&catcher.sa_mask);
+	catcher.sa_flags = SA_RESTART;
+	if(sigaction(SIGINT, &catcher, NULL) > 0){
+		perror("sigaction");
+		return -1;
+	}
+
+	while(is_running){ //No way out besides a SIG*
 		//Turn-by-turn
 		long turn_start = time(NULL);
 
@@ -56,4 +74,6 @@ int main(int argc, char** argv){
 			curr_entity = curr_entity->next;
 		}
 	}
+
+	fprintf(stdout, "Terminated by CTRL-C/SIGINT.\n");
 }
