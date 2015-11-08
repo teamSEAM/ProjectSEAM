@@ -4,7 +4,7 @@ type expr =
   | Binop of expr * operator * expr
   | Lit of int
   | Seq of expr * expr
-  | Asn of int * expr
+  | Asn of string * expr (* SEAN *)
   | Id of string (* SEAN *)
   | Noexpr (* SEAN *)
 

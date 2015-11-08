@@ -8,7 +8,7 @@
 %token COMMA DOT COLON SEMI/* SEAN */
 %token WHILE FOR
 %token INT FLOAT
-%token ENTITY FUNCTION TEXTURE
+%token ENTITY MAIN FUNCTION TEXTURE
 
 %nonassoc NOELSE /* Precedence and associativity of each operator */
 %nonassoc ELSE
@@ -45,8 +45,9 @@ expr:
 | expr GT expr { Binop($1, Greater, $3) }
 | expr GEQ expr { Binop($1, Geq, $3) }
 | LPAREN expr RPAREN { $2 }/*SEAN DONE HERE*/
+
 /*
 stmt:
-| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
 | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) } 
 */
