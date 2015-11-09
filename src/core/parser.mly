@@ -38,7 +38,7 @@ expr:
 | expr DIVIDE expr 			{ Binop($1, Div, $3) }
 
 | ID ASSIGN expr { Asn($1, $3) }
-| LPAREN expr RPAREN { $2 }/*SEAN DONE HERE*/
+| LPAREN expr RPAREN { $2 }
 
 | expr EQ expr { Binop($1, Equal, $3) }
 | expr NEQ expr { Binop($1, Neq, $3) }
@@ -49,5 +49,9 @@ expr:
 
 
 stmt:
+expr SEMI { Expr($1) } 
 | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
 | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) } 
+
+/*NEED TO COUNT THE TABS */
+

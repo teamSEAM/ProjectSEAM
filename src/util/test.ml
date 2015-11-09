@@ -15,8 +15,9 @@ let rec eval = function
     | Sub -> v1 - v2
     | Mul -> v1 * v2
     | Div -> v1 / v2
-*)
+
 let _ =
   let lexbuf = Lexing.from_channel stdin in
   let expr = Parser.expr Scanner.token lexbuf in
   print_endline (Debug.string_of_expr expr)
+*)
