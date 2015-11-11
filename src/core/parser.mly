@@ -28,30 +28,66 @@
 %type <Ast.expr> expr
 
 %%
+program:
+| decls EOF {$1}
+
+decls:
+|{ [], [] } /* CAN BE BLANK*/
+| decls vdecl /*Globals*/
+| decls fdecl /* Can be outside an entity */
+| decls edecl /* Entity Declaration */
+
+fdecl: /*Taken from microc*/
+   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { fname = $1;
+	 formals = $3;
+	 locals = List.rev $6;
+	 body = List.rev $7 } }
+vdecl_list: /*Taken from microc*/
+    /* nothing */    { [] }
+  | vdecl_list vdecl { $2 :: $1 }
+
+vdecl: /*Taken from microc*/
+   INT ID SEMI { $2 }
+
+stmt_list: /*Taken from microc*/
+    /* nothing */  { [] }
+  | stmt_list stmt { $2 :: $1 }
+
+/* NEEDS WORK HERE! ENTITY LAYOUT. SEAN WILL DO RESEARCH */
+edecl:
+	ENTITY LBRACE  RBRACE
 
 expr:
-| LITERAL          			{ Lit($1) }
-| ID         				{ Id($1) }
-| expr PLUS   expr 			{ Binop($1, Add, $3) }
-| expr MINUS  expr 			{ Binop($1, Sub, $3) }
-| expr TIMES  expr 			{ Binop($1, Mul, $3) }
-| expr DIVIDE expr 			{ Binop($1, Div, $3) }
+| LITERAL          			{ Lit($1) 								 }
+| ID         				{ Id($1) 								 }
+| expr PLUS   expr 			{ Binop($1, Add, $3) 					 }
+| expr MINUS  expr 			{ Binop($1, Sub, $3) 					 }
+| expr TIMES  expr 			{ Binop($1, Mul, $3) 					 }
+| expr DIVIDE expr 			{ Binop($1, Div, $3)					 }
+	
+| ID ASSIGN expr 			{ Asn($1, $3) 							 }
+| LPAREN expr RPAREN 		{ $2 									 }
 
-| ID ASSIGN expr { Asn($1, $3) }
-| LPAREN expr RPAREN { $2 }
-
-| expr EQ expr { Binop($1, Equal, $3) }
-| expr NEQ expr { Binop($1, Neq, $3) }
-| expr LT expr { Binop($1, Less, $3) }
-| expr LEQ expr { Binop($1, Leq, $3) }
-| expr GT expr { Binop($1, Greater, $3) }
-| expr GEQ expr { Binop($1, Geq, $3) }
+| expr EQ expr   			{ Binop($1, Equal, $3) 		 			 }
+| expr NEQ expr  			{ Binop($1, Neq, $3) 					 }
+| expr LT expr   			{ Binop($1, Less, $3) 			 		 }
+| expr LEQ expr  			{ Binop($1, Leq, $3) 					 }
+| expr GT expr   			{ Binop($1, Greater, $3) 				 }
+| expr GEQ expr  			{ Binop($1, Geq, $3)				 	 }
 
 
 stmt:
 expr SEMI { Expr($1) } 
-| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) } 
-| IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) } 
-
+| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([]))	 } 
+| IF LPAREN expr RPAREN stmt ELSE stmt 	  {s If($3, $5, $7) 		 } 
+| FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
+     { For($3, $5, $7, $9) }
+| WHILE LPAREN expr RPAREN stmt { While($3, $5) }
 /*NEED TO COUNT THE TABS */
+
+expr_opt:
+ /* nothing */ 	{ Noexpr }
+| expr          { $1 }
+
 
