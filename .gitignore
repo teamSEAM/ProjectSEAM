@@ -3,4 +3,6 @@
 src/_build/*
 *.mli
 *.cmo
+*.cm
 *.cmi
+src/core/seam
