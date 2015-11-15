@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 /* %token ENTITY MAIN FUNCTION TEXTURE */
-%token STRING FLOAT INT 
+%token STRING FLOAT INT
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
@@ -27,18 +27,18 @@ program:
 | decls EOF {$1}
 
 decls:
-| { [] } 
+| { [] }
 | decls fdecl { $2 :: $1 }
 
 /* Function declarations */
 
 /* Formal arguments for functions */
 
-formals_opt: 
+formals_opt:
     /* nothing */ { [] }
 | formal_list   { List.rev $1 }
 
-formal_list: 
+formal_list:
   formal_id                   { [$1] }
 | formal_list COMMA formal_id { $3 :: $1 }
 
@@ -54,7 +54,7 @@ var_type:
     STRING { Str }
   | INT { Int }
 
-fdecl: 
+fdecl:
     func_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
     {{ vtype = $1;
        fname = $2;
@@ -66,10 +66,10 @@ vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
 
-vdecl: 
+vdecl:
    var_type ID SEMI { $1, $2 }
 
-stmt_list: 
+stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
 
@@ -81,7 +81,7 @@ expr:
 | expr MINUS  expr 			{ Binop($1, Sub, $3) 					 }
 | expr TIMES  expr 			{ Binop($1, Mult, $3) 					 }
 | expr DIVIDE expr 			{ Binop($1, Div, $3)					 }
-	
+
 | ID ASSIGN expr 			{ Assign($1, $3)						 }
 | LPAREN expr RPAREN 		{ $2 									 }
 
@@ -93,6 +93,6 @@ expr:
 | expr GEQ expr  			{ Binop($1, Geq, $3)				 	 }
 
 stmt:
-  expr SEMI { Expr($1) } 
+  expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block(List.rev $2) }
 | RETURN expr SEMI { Return($2) }

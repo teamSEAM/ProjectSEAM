@@ -10,13 +10,13 @@ type expr =
   | Assign of string * expr (* Assignment is ID + an expression *)
   | Call of string * expr list (* A call has a function name and list of
                                   arguments, which are all expressions *)
-  | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used 
+  | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used
               in call_function( the_empty_string ) *)
 
 (* Defines the allowable statements *)
 type stmt =
     Block of stmt list (* Statement can be a list of statements *)
-  | Expr of expr (* A single expression is a valid statement 
+  | Expr of expr (* A single expression is a valid statement
                     TODO: Check if this will break in C -- looks valid *)
   | Return of expr (* Return a value from a function *)
 
@@ -37,13 +37,13 @@ type program = fdecl list (* Only function decls for now; add globals/
 
 (*type entity_decl = {
         ename : string;
-        members : v_decl list; 
+        members : v_decl list;
         functions : func_decl list;
 }
 
-type toplevel_element = 
-        | Function of func_decl 
-        | VarDecl of v_decl 
+type toplevel_element =
+        | Function of func_decl
+        | VarDecl of v_decl
         | EntityDecl of entity_decl
 *)
 
