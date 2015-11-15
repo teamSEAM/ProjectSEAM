@@ -30,7 +30,9 @@ TARFILES = Makefile testall.sh scanner.mll parser.mly \
 	$(TESTS:%=tests/test-%.out)
 
 seamc : seam preprocessor
-	cp pipeline.sh seamc
+	echo "#!/bin/sh" > seamc
+	echo "./$(word 2,$^) < $1 | ./$(word 1,$^)" >> seamc
+	chmod +x seamc
 
 seam : $(OBJS)
 	ocamlc -o seam $(OBJS)
