@@ -28,7 +28,6 @@
 program:
 | decls EOF {$1}
 
-
 decls:
 |{ [], [] } /* CAN BE BLANK*/
 | decls vdecl /*Globals*/
@@ -37,20 +36,6 @@ decls:
 
 fdecl: /*Taken from microc*/
 
-program:
-  decls EOF { $1 }
-
-decls:
-   /* nothing */ { [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1 }
- | decls fdecl { fst $1, ($2 :: snd $1) }
-
-fdecl:
-   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { fname = $1;
-	 formals = $3;
-	 locals = List.rev $6;
-	 body = List.rev $7 } }
 
 vdecl_list: /*Taken from microc*/
     /* nothing */    { [] }
@@ -94,7 +79,7 @@ formal_list: /*Taken from microc*/
   | formal_list COMMA ID { $3 :: $1 }
 
 
-stmt: 
+stmt: g
   expr SEMI { Expr($1) } 
 | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([]))	 } 
 | IF LPAREN expr RPAREN stmt ELSE stmt 	  {s If($3, $5, $7) 		 } 
