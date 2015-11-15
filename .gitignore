@@ -1,3 +1,6 @@
 .DS_Store
 *.swp
 src/_build/*
+*.mli
+*.cmo
+*.cmi
