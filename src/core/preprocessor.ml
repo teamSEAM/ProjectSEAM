@@ -5,7 +5,7 @@ file that would be handled by this *)
 
 
 (* open the file, which I should figure out how to close *)
-let myfile = open_in "input.txt" in
+let myfile = stdin in
 
 (* read in the lines one by one into a list *)
 let rec input_lines file =
