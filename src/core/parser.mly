@@ -1,20 +1,17 @@
 %{ open Ast %}
 
-
-%token ENTITY MAIN FUNCTION TEXTURE
+/* %token ENTITY MAIN FUNCTION TEXTURE */
 %token STRING FLOAT INT 
-
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
-%token <int> LITERAL
+%token <int> INT_LITERAL
+%token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
-%nonassoc NOELSE
-%nonassoc ELSE
 %right ASSIGN
 %left EQ NEQ
 %left LT GT LEQ GEQ
@@ -25,17 +22,37 @@
 %type <Ast.program> program
 
 %%
+
 program:
 | decls EOF {$1}
 
 decls:
-|{ [], [] } /* CAN BE BLANK*/
-| decls vdecl /*Globals*/
-| decls fdecl /* Can be outside an entity */
-| decls edecl /* Entity Declaration */
+| { [] } 
+| decls fdecl 
 
-fdecl: /*Taken from microc*/
+(* Function declarations *)
 
+(* Formal arguments for functions *)
+
+formals_opt: /*Taken from microc*/
+    /* nothing */ { [] }
+  | formal_list   { List.rev $1 }
+
+formal_list: /*Taken from microc*/
+    ID                   { [$1] }
+  | formal_list COMMA ID { $3 :: $1 }
+
+var_type:
+    STRING { Str }
+  | INT { Int }
+
+fdecl: 
+    var_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+    {{ vtype = $1;
+       fname = $2;
+       formals = $4;
+       locals = List.rev $7;
+       body = List.rev $8 }}
 
 vdecl_list: /*Taken from microc*/
     /* nothing */    { [] }
@@ -69,14 +86,6 @@ expr:
 | expr LEQ expr  			{ Binop($1, Leq, $3) 					 }
 | expr GT expr   			{ Binop($1, Greater, $3) 				 }
 | expr GEQ expr  			{ Binop($1, Geq, $3)				 	 }
-
-formals_opt: /*Taken from microc*/
-    /* nothing */ { [] }
-  | formal_list   { List.rev $1 }
-
-formal_list: /*Taken from microc*/
-    ID                   { [$1] }
-  | formal_list COMMA ID { $3 :: $1 }
 
 
 stmt: g

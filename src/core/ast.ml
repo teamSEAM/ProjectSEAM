@@ -1,39 +1,40 @@
+(* Defines the operators allowed in a binary operation *)
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
+(* Defines the different types of allowed expressions *)
 type expr =
-    Literal of int
-  | Id of string
-  | Binop of expr * op * expr
-  | Assign of string * expr
-  | Call of string * expr list
-  | Asn of string * expr (* SEAN *)
-  | Noexpr
+    IntLit of int (* An integer literal *)
+  | StrLit of string (* A string literal *)
+  | Id of string (* IDs are always strings *)
+  | Binop of expr * op * expr (* Binary expressions *)
+  | Assign of string * expr (* Assignment is ID + an expression *)
+  | Call of string * expr list (* A call has a function name and list of
+                                  arguments, which are all expressions *)
+  | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used 
+              in call_function( the_empty_string ) *)
 
+(* Defines the allowable statements *)
 type stmt =
-    Block of stmt list
-  | Expr of expr
-  | If of expr * stmt * stmt
-  | For of expr * expr * expr * stmt
-  | Return of expr
-  | While of expr * stmt
+    Block of stmt list (* Statement can be a list of statements *)
+  | Expr of expr (* A single expression is a valid statement 
+                    TODO: Check if this will break in C -- looks valid *)
+  | Return of expr (* Return a value from a function *)
 
-type func_decl = {
+type primitive = Str | Int (* To add: floats, instances, boolean *)
+type vdecl = primitive * string
+
+type fdecl = {
+    vtype: primitive; (* type of function *)
     fname : string;
     formals : string list;
-    locals : string list;
+    locals : vdecl list;
     body : stmt list;
-  }
+}
 
-type program = string list * func_decl list
+type program = fdecl list (* Only function decls for now; add globals/
+                                 entities later *)
 
-
-
-
-
-type primitive_type = Bool | Str | Instance | Int
-type actual_type = primitive_type * bool
-type v_decl = actual_type * string
-type entity_decl = {
+(*type entity_decl = {
         ename : string;
         members : v_decl list; 
         functions : func_decl list;
@@ -43,51 +44,6 @@ type toplevel_element =
         | Function of func_decl 
         | VarDecl of v_decl 
         | EntityDecl of entity_decl
-
+*)
 
 (* type program = toplevel_element list *)
-
-
-
-
-
-
-let rec string_of_expr = function
-    Literal(l) -> string_of_int l
-  | Id(s) -> s
-  | Binop(e1, o, e2) ->
-      string_of_expr e1 ^ " " ^
-      (match o with
-	Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!="
-      | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") ^ " " ^
-      string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | Noexpr -> ""
-
-let rec string_of_stmt = function
-    Block(stmts) ->
-      "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-  | Expr(expr) -> string_of_expr expr ^ ";\n";
-  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
-  | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
-  | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
-      string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
-  | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
-      string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let string_of_vdecl id = "int " ^ id ^ ";\n"
-
-let string_of_fdecl fdecl =
-  fdecl.fname ^ "(" ^ String.concat ", " fdecl.formals ^ ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^
-  "}\n"
-
-let string_of_program (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
