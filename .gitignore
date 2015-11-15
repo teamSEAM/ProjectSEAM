@@ -6,3 +6,5 @@ src/_build/*
 *.cm
 *.cmi
 src/core/seam
+src/core/scanner.ml
+src/core/parser.ml
