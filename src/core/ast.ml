@@ -20,13 +20,14 @@ type stmt =
                     TODO: Check if this will break in C -- looks valid *)
   | Return of expr (* Return a value from a function *)
 
+type ret_type = Void | Str | Int
 type primitive = Str | Int (* To add: floats, instances, boolean *)
 type vdecl = primitive * string
 
 type fdecl = {
-    vtype: primitive; (* type of function *)
+    vtype: ret_type; (* type of function *)
     fname : string;
-    formals : string list;
+    formals : vdecl list;
     locals : vdecl list;
     body : stmt list;
 }

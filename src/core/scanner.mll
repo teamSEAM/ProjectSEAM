@@ -28,7 +28,7 @@ rule token = parse
 | "function" { FUNCTION }
 
 | ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
-| ["\""][^"\""]*["\""] as lxm { STRING_LITERAL(lxm) } 
+| '"' [^'"']*'"'as lxm { STRING_LITERAL(lxm) } 
 
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
