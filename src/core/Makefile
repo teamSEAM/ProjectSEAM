@@ -31,7 +31,7 @@ TARFILES = Makefile testall.sh scanner.mll parser.mly \
 
 seamc : seam preprocessor
 	echo "#!/bin/sh" > seamc
-	echo "./$(word 2,$^) < $1 | ./$(word 1,$^)" >> seamc
+	echo './$(word 2,$^) < $$1 | ./$(word 1,$^)' >> seamc
 	chmod +x seamc
 
 seam : $(OBJS)
