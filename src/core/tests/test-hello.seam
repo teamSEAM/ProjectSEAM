@@ -1,3 +1,5 @@
 function main():
+	 # Does nothing yet #
 	 1 + 1
 	 2 + 2
+	 "This is a string literal, which is an expression"
