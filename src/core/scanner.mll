@@ -20,7 +20,10 @@ rule token = parse
 | "<="     { LEQ }
 | ">"      { GT }
 | ">="     { GEQ }
+
+
 | "return" { RETURN }
+| "print" { PRINT }
 
 | "string" { STRING }
 | "int"    { INT }

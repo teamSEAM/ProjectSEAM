@@ -6,8 +6,7 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN FUNCTION
-%token <int> INT_LITERAL
+%token PRINT RETURN FUNCTION %token <int> INT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
@@ -96,3 +95,4 @@ stmt:
   expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block(List.rev $2) }
 | RETURN expr SEMI { Return($2) }
+| PRINT expr SEMI { Print($2) } 

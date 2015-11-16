@@ -19,6 +19,7 @@ type stmt =
   | Expr of expr (* A single expression is a valid statement
                     TODO: Check if this will break in C -- looks valid *)
   | Return of expr (* Return a value from a function *)
+  | Print of expr (* prints value of the expression *)
 
 type ret_type = Void | Str | Int
 type primitive = Str | Int (* To add: floats, instances, boolean *)
