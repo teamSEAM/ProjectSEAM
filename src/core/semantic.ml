@@ -18,6 +18,35 @@ let check prog =
     let c_primitive obj = match obj with
         | Str -> "char **"
         | Int -> "int" in
+    let c_op obj = match obj with
+        | Add -> "+"
+        | Sub -> "-" 
+        | Mult -> "*" 
+        | Div -> "/" 
+        | Equal -> "==" 
+        | Neq -> "!="
+        | Less -> "<" 
+        | Leq -> "<=" 
+        | Greater -> ">" 
+        | Geq -> ">=" in
+
+    (* returns the expanded c expression for *)
+    let expand_expr expr_obj = 
+        let rec generate_expr expr_obj = match expr_obj with
+                | IntLit(i) -> [string_of_int i;]
+                | StrLit(str) -> [str;]
+                | Id(str) -> 
+                        let mystr = String.concat "" ["__"; str;] in
+                        [mystr;]
+                | Binop(left, op, right) -> 
+                        ["(";] 
+                        @ (generate_expr left)
+                        @ [")"; c_op op; "(";] 
+                        @ (generate_expr right) @ [ ")";]
+                | Assign(str, expr) -> [ (String.concat "" ["__"; str;]); "=";]
+                        @ ( generate_expr expr)
+                | _ -> [] (* TODO - WILL THROW AN ERROR. *)
+         in generate_expr expr_obj in
 
     (* We raise exceptions if stuff goes bad *)
     let handle_fdecl list_so_far current_fdecl = 
@@ -27,8 +56,17 @@ let check prog =
         let ret_type = c_equivalents (current_fdecl.vtype) in     
         let formals = "()" in 
         let statements = 
+
+                (* too many layers of "let", this will be refactored later *)
                 let handle_stmt list_so_far current_stmt =
-                       " huh " :: list_so_far
+                        match current_stmt with
+
+                                Print(expr) ->
+                                   match expr with 
+                                         StrLit(str) | Id(str) -> "printf(\"%s\"," ::
+                                                ((expand_expr expr) @ (");" :: list_so_far ) )
+                                        | _ -> [] (* TODO throw error *)
+                                | _ -> "" :: list_so_far
                        in
 
                 let tokens = List.fold_left handle_stmt [] current_fdecl.body in
