@@ -1,4 +1,4 @@
-OBJS = ast.cmo parser.cmo scanner.cmo semantic.cmo seam.cmo 
+OBJS = ast.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo 
 TESTS = \
 arith1 \
 arith2 \
