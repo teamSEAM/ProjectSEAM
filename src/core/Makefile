@@ -1,23 +1,6 @@
 OBJS = ast.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo 
 TESTS = \
-arith1 \
-arith2 \
-fib \
-for1 \
-func1 \
-func2 \
-func3 \
-gcd \
-gcd2 \
-global1 \
-hello \
-if1 \
-if2 \
-if3 \
-if4 \
-ops1 \
-var1 \
-while1
+hello
 
 # Choose one
 YACC = ocamlyacc
