@@ -7,4 +7,6 @@
 *)
 
 let check prog = 
+    (* Do some checking here *)
+    (* We raise exceptions if stuff goes bad *)
     prog

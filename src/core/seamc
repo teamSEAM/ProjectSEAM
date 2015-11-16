@@ -1,0 +1,2 @@
+#!/bin/sh
+./preprocessor < $1 | ./seam
