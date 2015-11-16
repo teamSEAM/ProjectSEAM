@@ -58,18 +58,21 @@ let check prog =
         let statements = 
 
                 (* too many layers of "let", this will be refactored later *)
-                let handle_stmt list_so_far current_stmt =
+                let handle_stmt current_stmt list_so_far =
                         match current_stmt with
 
-                                Print(expr) ->
-                                   match expr with 
-                                         StrLit(str) | Id(str) -> "printf(\"%s\"," ::
+                                | Print(expr) ->
+                                   (match expr with 
+                                        | StrLit(str) | Id(str) -> "printf(\"%s\"," ::
                                                 ((expand_expr expr) @ (");" :: list_so_far ) )
-                                        | _ -> [] (* TODO throw error *)
+                                        | _ -> [] (* TODO throw error *))
+                                | Return(expr) ->
+                                   "return" :: (expand_expr expr @ (";" :: list_so_far ))
                                 | _ -> "" :: list_so_far
                        in
 
-                let tokens = List.fold_left handle_stmt [] current_fdecl.body in
+                (* use fold_right to generate the statements *)
+                let tokens = List.fold_right handle_stmt current_fdecl.body [] in
                 String.concat " " tokens in
 
         let function_production = ret_type :: current_fdecl.fname ::
