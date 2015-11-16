@@ -58,6 +58,6 @@ scanner.cmo : parser.cmi
 scanner.cmx : parser.cmx
 seam.cmo : semantic.cmo scanner.cmo parser.cmi
 seam.cmx : semantic.cmx scanner.cmx parser.cmx
-semantic.cmo :
-semantic.cmx :
+semantic.cmo : ast.cmo
+semantic.cmx : ast.cmx
 parser.cmi : ast.cmo
