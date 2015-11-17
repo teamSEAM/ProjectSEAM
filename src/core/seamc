@@ -1,0 +1,35 @@
+#!/bin/bash
+# Called with [input program] [output program]
+
+if [ $# -ne 2 ]
+then
+    echo "usage: $0 <input file> <output program>"
+    exit 1
+fi
+
+
+cat $1 | ./preprocessor > temp.seami
+RETVAL=$(cat temp.seami | ./seam > gen.c) 
+if [ "$?" -ne "0" ] 
+then
+    echo "Error encountered while compiling: "
+    echo $RETVAL
+    # rm temp.seami
+    # rm gen.c
+    exit 1
+else
+    echo "Input program translated succesfully; compiling..."
+fi
+
+# Append needed include to start of file; TODO: put in compiler
+# See Google: http://superuser.com/questions/246837/how-do-i-add-text-to-the-beginning-of-a-file-in-bash
+echo "#include \"gen.h\"" | cat - gen.c > temp && mv temp gen.c
+
+gcc lib.c -c -o lib.o
+gcc lib.o gen.c -c -o gen.o
+gcc main.c lib.o gen.o -o $2
+
+# rm temp.seami
+# rm gen.c
+
+echo "$2 created."
