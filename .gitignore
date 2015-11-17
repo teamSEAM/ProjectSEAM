@@ -5,6 +5,8 @@ src/_build/*
 *.cmo
 *.cm
 *.cmi
+*.seami
 src/core/seam
 src/core/scanner.ml
 src/core/parser.ml
+src/core/preprocessor
