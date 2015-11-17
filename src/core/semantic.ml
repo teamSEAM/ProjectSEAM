@@ -55,6 +55,9 @@ let check prog =
         (* handle the type *)
         let ret_type = c_equivalents (current_fdecl.vtype) in     
         let formals = "()" in 
+        let function_name = 
+                if (String.compare current_fdecl.fname "main") == 0 then "program_ep"
+                else current_fdecl.fname in
         let statements = 
 
                 (* too many layers of "let", this will be refactored later *)
@@ -63,7 +66,7 @@ let check prog =
 
                                 | Print(expr) ->
                                    (match expr with 
-                                        | StrLit(str) | Id(str) -> "printf(\"%s\"," ::
+                                        | StrLit(str) | Id(str) -> "_seam_print(" ::
                                                 ((expand_expr expr) @ (");" :: list_so_far ) )
                                         | _ -> [] (* TODO throw error *))
                                 | Return(expr) ->
@@ -75,7 +78,7 @@ let check prog =
                 let tokens = List.fold_right handle_stmt current_fdecl.body [] in
                 String.concat " " tokens in
 
-        let function_production = ret_type :: current_fdecl.fname ::
+        let function_production = ret_type :: function_name ::
                 formals :: "{" :: statements :: ["}"] 
                 in 
         function_production @ list_so_far

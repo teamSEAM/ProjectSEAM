@@ -1,2 +1,3 @@
+#include "lib.h"
 #include "gen.h"
-void main () { printf("%s", "Hello world!" ); }
+void program_ep () { _seam_print( "Hello world!" ); }
