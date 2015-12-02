@@ -36,18 +36,19 @@ formal_list:
 formal_id:
   var_type ID { $1, $2 }
 
-func_type:
-    FUNCTION { Void }
-  | INT { Int }
-  | STRING { Str }
-  | FLOAT { Float }
+ret_type:
+    | FUNCTION { Void }
+    | var_type { PrimitiveVariable($1) } 
+
 
 var_type:
     STRING { Str }
   | FLOAT { Float }
+  | INT { Int }
+
 
 fdecl:
-    func_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+    ret_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
     {{ vtype = $1;
        fname = $2;
        formals = $4;
@@ -65,13 +66,18 @@ stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
 
+fdecl_list:
+  { [] }
+  | fdecl_list fdecl { $2 :: $1 }
+
 
 entity_decl:
-        ENTITY ID LBRACE vdecl_list RBRACE
+        ENTITY ID LBRACE vdecl_list fdecl_list RBRACE
         {
                 { 
                         name = $2;
                         members = $4;
+                        functions = $5;
                 }
         }
 

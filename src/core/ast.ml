@@ -21,8 +21,8 @@ type stmt =
   | Return of expr (* Return a value from a function *)
   | Print of expr (* prints value of the expression *)
 
-type ret_type = Void | Int | Str | Float
 type primitive = Str | Float | Int (* To add: floats, instances, boolean *)
+type ret_type = Void | PrimitiveVariable of primitive
 type vdecl = primitive * string
 
 type fdecl = {
@@ -36,7 +36,7 @@ type fdecl = {
 type entity_decl = {
         name : string;
         members : vdecl list;
-        (* functions : fdecl list; *)
+        functions : fdecl list;
 }
 
 type toplevel_element =
@@ -45,20 +45,4 @@ type toplevel_element =
         | TopLevelEntity of entity_decl
 
 type program = toplevel_element list
-
-(* type program = fdecl list Only function decls for now; add globals/
-                                 entities later *)
-
-(* type program = toplevel_element list; *)
-(*type entity_decl = {
-        ename : string;
-        members : v_decl list;
-        functions : func_decl list;
-}
-
-type toplevel_element =
-        | Function of func_decl
-        | VarDecl of v_decl
-        | EntityDecl of entity_decl
-*)
 
