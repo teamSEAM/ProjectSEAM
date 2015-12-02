@@ -1,0 +1,7 @@
+float abc
+
+function a():
+	print("5")
+function main():
+	print("Hello TEAM SEAM!!")
+

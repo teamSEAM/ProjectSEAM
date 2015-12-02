@@ -1,0 +1,33 @@
+function a():
+	print("5")
+
+
+# also now we can declare variables after functions out of order here:#
+int s
+float f
+
+# there's some random whitespace here just to prove that the
+compiler doesn't mess with that sort of stuff #
+				
+		
+                                #hi #
+
+function main():
+	print("Hello TEAM SEAM!!")
+
+# basic entity declarations, with member variables AND functions #
+# for now, strictly enforce variables, then function definitions #
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+	function my_func():
+		print("Hello TEAM SEAM!!")
+
+
+# to hammer the point in, here's more top-lvel stuff#
+
+int hello_world
+float v

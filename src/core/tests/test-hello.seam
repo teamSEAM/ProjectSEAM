@@ -1,4 +1,5 @@
 function main():
 	print("Hello world!")
 	print("We can print two lines too.")
+	print("We can print three lines too.")
 	print("Edwards, do we get full credit now?")

@@ -10,7 +10,14 @@ include Ast (* oh my god include this when using types from Ast *)
 
 let check prog = 
 
+    (* actual checking happens here *)
 
+    
+
+
+
+
+    (* actually everything below isn't checking, it's the translation. *)
     let c_equivalents obj = match obj with
         | Void -> "void"
         | Str -> "char **" 
@@ -48,8 +55,10 @@ let check prog =
                 | _ -> [] (* TODO - WILL THROW AN ERROR. *)
          in generate_expr expr_obj in
 
+
+
     (* We raise exceptions if stuff goes bad *)
-    let handle_fdecl list_so_far current_fdecl = 
+    let handle_fdecl current_fdecl = 
         
         
         (* handle the type *)
@@ -78,13 +87,29 @@ let check prog =
                 let tokens = List.fold_right handle_stmt current_fdecl.body [] in
                 String.concat " " tokens in
 
+        (* assemble all my shit *)
         let function_production = ret_type :: function_name ::
-                formals :: "{" :: statements :: ["}"] 
-                in 
-        function_production @ list_so_far
+                formals :: "{" :: statements :: ["}"] in 
 
+
+        function_production in
+
+    (* oh here prog is -program-, the list of fdecls *)
+    (* modifying... *)
+    
+    let handle_top_level list_so_far current_top_lvl = 
+        let tokens = 
+            match current_top_lvl with
+                | TopLevelFunction(f) -> handle_fdecl f 
+                | TopLevelVar(v) -> []
+                | TopLevelEntity(e) -> []
+            in
+        list_so_far @ tokens
         in
-    let string_tokens = List.fold_left handle_fdecl [] prog
+
+
+    let string_tokens = List.fold_left handle_top_level [] prog
+    (* let string_tokens = List.fold_left handle_fdecl [] prog *)
         in
     String.concat " " string_tokens
 

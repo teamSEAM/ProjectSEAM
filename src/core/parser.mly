@@ -6,7 +6,7 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
-%token PRINT RETURN FUNCTION %token <int> INT_LITERAL
+%token PRINT FLOAT RETURN FUNCTION ENTITY %token <int> INT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
@@ -21,14 +21,6 @@
 %type <Ast.program> program
 
 %%
-
-program:
-| decls EOF {$1}
-
-decls:
-| { [] }
-| decls fdecl { $2 :: $1 }
-
 /* Function declarations */
 
 /* Formal arguments for functions */
@@ -46,12 +38,13 @@ formal_id:
 
 func_type:
     FUNCTION { Void }
-  | STRING { Str }
   | INT { Int }
+  | STRING { Str }
+  | FLOAT { Float }
 
 var_type:
     STRING { Str }
-  | INT { Int }
+  | FLOAT { Float }
 
 fdecl:
     func_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -72,10 +65,36 @@ stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
 
+
+entity_decl:
+        ENTITY ID LBRACE vdecl_list RBRACE
+        {
+                { 
+                        name = $2;
+                        members = $4;
+                }
+        }
+
+
+program:
+| decls EOF {$1}
+
+
+toplevel_element:
+        | vdecl { TopLevelVar($1) }
+        | fdecl { TopLevelFunction($1) }
+        | entity_decl { TopLevelEntity($1) }
+
+
+decls:
+        | { [] }
+        | decls toplevel_element { $2 :: $1 }
+
+
 expr:
-| STRING_LITERAL          	{ StrLit($1)							 }
-| INT_LITERAL               { IntLit($1)                             }
-| ID         				{ Id($1) 								 }
+| STRING_LITERAL          	        { StrLit($1)	                                        }
+| INT_LITERAL                           { IntLit($1)                                            }
+| ID         				{ Id($1)                                               }
 | expr PLUS   expr 			{ Binop($1, Add, $3) 					 }
 | expr MINUS  expr 			{ Binop($1, Sub, $3) 					 }
 | expr TIMES  expr 			{ Binop($1, Mult, $3) 					 }

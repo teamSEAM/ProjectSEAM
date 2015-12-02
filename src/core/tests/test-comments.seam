@@ -1,0 +1,7 @@
+function aux():
+	print("Doesn't do much.")
+
+#this is a comment#
+function                #this is a comment with a bit of whitespace too        # main():
+	print("comment test.")
+

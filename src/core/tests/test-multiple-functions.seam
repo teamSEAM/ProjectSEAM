@@ -1,0 +1,6 @@
+function aux():
+	print("Doesn't do much.")
+
+function main():
+	print("Multiple top-level function test.")
+

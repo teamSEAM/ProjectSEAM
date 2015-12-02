@@ -1,0 +1,12 @@
+function a():
+	print("5")
+function main():
+	print("Hello TEAM SEAM!!")
+
+# basic entity declarations, with just member variables #
+entity e:
+	float f
+	int i
+	int j
+	int k
+	string mystr

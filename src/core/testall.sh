@@ -63,8 +63,7 @@ Check() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.out" &&
-    Run "$COMPILER" $1 ${basename} &&
-    Run ./${basename} > ${basename}.out
+    Run "$COMPILER" $1 ">" ${basename}.out &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # generatedfiles="$generatedfiles ${basename}.i.out" &&

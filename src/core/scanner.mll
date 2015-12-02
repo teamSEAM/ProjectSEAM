@@ -27,7 +27,9 @@ rule token = parse
 
 | "string" { STRING }
 | "int"    { INT }
+| "float" { FLOAT }
 
+| "entity" { ENTITY }
 | "function" { FUNCTION }
 
 | ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
