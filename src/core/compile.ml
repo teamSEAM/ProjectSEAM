@@ -53,7 +53,7 @@ let translate checked_program =
         let ret_type = c_ret_equivalents (current_fdecl.vtype) in     
         let formals = "()" in 
         let function_name = 
-                if (String.compare current_fdecl.fname "main") == 0 then "checked_programram_ep"
+                if (String.compare current_fdecl.fname "main") == 0 then "program_ep"
                 else current_fdecl.fname in
         let statements = 
 

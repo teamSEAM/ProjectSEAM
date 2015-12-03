@@ -7,6 +7,8 @@ src/_build/*
 *.cmi
 *.seami
 *.o
+*.log
+src/core/gen.c
 src/core/out
 src/core/seam
 src/core/scanner.ml
