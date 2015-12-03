@@ -21,7 +21,8 @@ rule token = parse
 | ">"      { GT }
 | ">="     { GEQ }
 
-
+| "if"     {IF}
+| "else"   {ELSE}
 | "return" { RETURN }
 | "print" { PRINT }
 

@@ -9,7 +9,7 @@ type expr =
   | Binop of expr * op * expr (* Binary expressions *)
   | Assign of string * expr (* Assignment is ID + an expression *)
   | Call of string * expr list (* A call has a function name and list of
-                                  arguments, which are all expressions *)
+                                 arguments, which are all expressions *)
   | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used
               in call_function( the_empty_string ) *)
 
@@ -20,6 +20,7 @@ type stmt =
                     TODO: Check if this will break in C -- looks valid *)
   | Return of expr (* Return a value from a function *)
   | Print of expr (* prints value of the expression *)
+  | If of expr * stmt * stmt
 
 type primitive = Str | Float | Int (* To add: floats, instances, boolean *)
 type ret_type = Void | PrimitiveVariable of primitive
