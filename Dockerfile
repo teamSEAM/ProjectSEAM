@@ -9,5 +9,5 @@ RUN apt-get update && apt-get install -y \
     ocaml \
     vim
 
-RUN git clone https://github.com/teamSEAM/ProjectSEAM.git
 WORKDIR /ProjectSEAM
+COPY . /ProjectSEAM
