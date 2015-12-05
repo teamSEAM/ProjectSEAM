@@ -70,6 +70,16 @@ type translation_env = {
                         did you use something not declared?
 
 
+        error:
+                
+                error_locus: 
+                        on the toplevel
+                        inside an entity: entity_name
+                        function_name: string, or a non_func_associated
+
+                error_scope:
+                        obviously if it's 0, it's the toplevel, but
+
 *)
 
 

@@ -1,4 +1,4 @@
-OBJS = ast.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo 
+OBJS = ast.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo errors.cmo
 TESTS = \
 hello
 
@@ -7,7 +7,7 @@ YACC = ocamlyacc
 # YACC = menhir --explain
 
 TARFILES = Makefile testall.sh scanner.mll parser.mly \
-	ast.ml semantic.ml seam.ml \
+	ast.ml errors.ml semantic.ml seam.ml \
 	$(TESTS:%=tests/test-%.mc) \
 	$(TESTS:%=tests/test-%.out)
 
@@ -55,8 +55,10 @@ preprocessor.cmo :
 preprocessor.cmx :
 scanner.cmo : parser.cmi
 scanner.cmx : parser.cmx
+errors.cmo : ast.cmo 
+errors.cmx : ast.cmx
 seam.cmo : semantic.cmo scanner.cmo parser.cmi
 seam.cmx : semantic.cmx scanner.cmx parser.cmx
-semantic.cmo : ast.cmo
-semantic.cmx : ast.cmx
+semantic.cmo : ast.cmo errors.cmo
+semantic.cmx : ast.cmx errors.cmx
 parser.cmi : ast.cmo
