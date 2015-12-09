@@ -1,4 +1,6 @@
-include Ast (* oh my god include this when using types from Ast *)
+(* Errors will include Ast too *)
+include Errors
+
 
 (*
   * To analyze: 
@@ -25,63 +27,8 @@ type translation_env = {
     functions: fdecl StringMap.t;
 
     (* errors *)
+    errors: error list;
 }
-
-(* error types: 
-
-        you repeated the function declaration
-                on the toplevel
-                inside an entity
-
-        you repeated the entity declaration
-
-        you repeated a variable in the same scope
-                inside a function
-                        on the toplevel?
-                        inside an entity?
-
-        you used an undeclared variable in a statement
-                inside a function
-                        on the toplevel?
-                        inside an entity?
-
-        you fucked up the function call somewhere
-                where was this statement that went wrong?
-                        inside a function
-                                on the toplevel?
-                                inside an entity?
-                what was the function we were trying to call?
-
-
-        you tried to call an entity, but you fucked up
-                did you try to get its value?
-                did you try to use its function?
-                        did the function not exist?
-                    
-
-        common themes:
-                where did the error occur?
-                        what function name?
-                        function either toplevel, or
-                                inside which entity?
-                more details on the error:
-                        function calls - how did you fuck up?
-                        did you mess up types?
-                        did you use something not declared?
-
-
-        error:
-                
-                error_locus: 
-                        on the toplevel
-                        inside an entity: entity_name
-                        function_name: string, or a non_func_associated
-
-                error_scope:
-                        obviously if it's 0, it's the toplevel, but
-
-*)
-
 
 (* aliasing the StringMap just for familiarity *)
 let search_stringmap target map = 
@@ -91,25 +38,39 @@ let add_stringmap key addition map =
     StringMap.add key addition map
 
 
-(* for entities *) let add_entity_decl env entity_decl =
+(* for entities *)
+let add_entity_decl env possible_error_locus entity_decl =
     let name = entity_decl.name in
     let entities = env.entities in
     let found = search_stringmap name entities in
     if found then
         (* error message, because there shouldn't be another with same name *)
-        env
+        let new_error = (
+                possible_error_locus,
+                Scope(env.current_scope),
+                EntityRepeatDecl(entity_decl))
+            in
+        { env with errors = new_error :: env.errors }
     else
         let updated_entities = StringMap.add name entity_decl entities in
         { env with entities = updated_entities; } 
 
 (* very much like add_entity_decl but for functions *)
-let add_function_decl env function_decl =
+let add_function_decl env possible_error_locus function_decl =
     let name = function_decl.fname in
     let functions = env.functions in 
     let found = search_stringmap name functions in
     if found then
         (* error message, because there shouldn't be another with same name *)
-        env 
+        let new_error = (
+                (* This is why we force user of add_function_decl to include its 
+                own name. Here, if it is somewhere not in the toplevel, then 
+                it must be within an entity that we declared repeatedly *)
+                possible_error_locus,
+                Scope(env.current_scope),
+                FunctionRepeatDecl(function_decl))
+            in
+        { env with errors = new_error :: env.errors }
     else
         let updated_functions = StringMap.add name function_decl functions in
         { env with functions = updated_functions; } 
@@ -117,7 +78,7 @@ let add_function_decl env function_decl =
 
 
 (* returns an updated environment for variables *)
-let add_var_decl env var_decl =
+let add_var_decl env possible_error_locus var_decl =
 
     (* first let's introduce this auxiliary function for the add_var_decl *)
     let find_variable_scope env var =
@@ -144,8 +105,15 @@ let add_var_decl env var_decl =
 
     (* react accordingly *)
     if scope_number == env.current_scope then
-        (* error, we have a duplicate *)
-        env
+        (* error, we have a duplicate variable declaration
+                inside the same scope... *)
+        let new_error = (
+                possible_error_locus,
+                Scope(env.current_scope),
+                VariableRepeatDecl(var_decl))
+            in
+        { env with errors = new_error :: env.errors }
+
     else
         (* whether NOT FOUND or declared in an earlier scope
             it's okay, we're adding it to the current scope now *)
@@ -171,15 +139,17 @@ let main_checker top_level_program =
                 variables = scope_0_variables;
                 entities = StringMap.empty;
                 functions = StringMap.empty;
+                errors = [];
             } in
      
     (* first go through toplevel things and register them*)
     let register_toplevels env prog = 
-        (* register each one appropriately *)
+        (* register each one appropriately, 
+           TopLevel is there for possible error locus *)
         let handler env top_lvl_decl = match top_lvl_decl with
-            | TopLevelFunction f -> add_function_decl env f 
-            | TopLevelVar v -> add_var_decl env v 
-            | TopLevelEntity e -> add_entity_decl env e 
+            | TopLevelFunction f -> add_function_decl env TopLevel f 
+            | TopLevelVar v -> add_var_decl env TopLevel v 
+            | TopLevelEntity e -> add_entity_decl env TopLevel e 
             in
         List.fold_left handler env prog 
         in 

@@ -6,7 +6,7 @@ include Ast
         function_name: string *)
 type error_locus = 
         | TopLevel
-        | Entity of string
+        | EntityName of string
         | FunctionName of string
 
 (* error_scope:
