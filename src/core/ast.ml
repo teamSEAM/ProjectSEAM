@@ -22,8 +22,16 @@ type stmt =
   | Print of expr (* prints value of the expression *)
   | If of expr * stmt * stmt
 
-type primitive = Str | Float | Int (* To add: floats, instances, boolean *)
+(* Acting type = type including array declarations *)
+(* To add: floats, instances, boolean *)
+type primitive = Str | Float | Int | Instance
+type array_size = NotAnArray | Dynamic | ArraySize of int
+type acting_type = primitive * array_size 
+
 type ret_type = Void | PrimitiveVariable of primitive
+
+
+
 type vdecl = primitive * string
 
 type fdecl = {
