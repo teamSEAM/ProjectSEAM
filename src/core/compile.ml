@@ -1,28 +1,5 @@
 include Ast
 
-(* actually everything below isn't checking, it's the translation. *)
-let c_equivalents obj = match obj with
-    | Str -> "char **" 
-    | Float -> "float"
-    | Int -> "int" 
-
-let c_ret_equivalents obj = match obj with
-    | Void -> "void"
-    | PrimitiveVariable(p) -> c_equivalents p
-
-let c_op obj = match obj with
-    | Add -> "+"
-    | Sub -> "-" 
-    | Mult -> "*" 
-    | Div -> "/" 
-    | Equal -> "==" 
-    | Neq -> "!="
-    | Less -> "<" 
-    | Leq -> "<=" 
-    | Greater -> ">" 
-    | Geq -> ">="
-
-
 (* Takes as input the checked AST-toplevel, and
 generates the C output *) 
 let translate checked_program = 

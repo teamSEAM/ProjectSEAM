@@ -52,44 +52,40 @@ type error_type =
         (* entity usage issues *)
 
 
-
 (* an error is just the three together *)
 type error = error_locus * error_scope * error_type
 
+(* the convenient methods to print information about the errors *)
 
+let describe_error_type type_obj = match type_obj with 
 
-(* brainstorming *)
+(* repeat declarations: *)
+        | VariableRepeatDecl v ->   
+                "Repeat declaration of: " :: (format_vdecl v)
 
-(* error types: 
+(*
+        | FunctionRepeatDecl f
+        | EntityRepeatDecl of entity_decl
+        (* usage of a variable we did not declare
+        undeclared_variable: variable_name, expression
+        undeclared_function: bad_function_name, expression
+        undeclared_entity: bad_entity_name, expression *)
 
-        you repeated the function declaration
-                on the toplevel
-                inside an entity
+        | UndeclaredVariable of string * expr
 
-        you repeated the entity declaration
+        (* type check errors: 
+        as long as the names and the whole expression/statement
+                are provided, they should have enough to figure it out
+        expression_type_mismatch: expected_type, gotten_type, 
+                expected_name, gotten_name, expression
+        statement_type_mismatch: expected_type, gotten_type, expected_name, gotten_name, statement *) 
+        | ExpressionTypeMismatch of primitive * primitive * string * string * expr 
+        | StatementTypeMismatch of primitive * primitive * string * string * stmt
 
-        you repeated a variable in the same scope
-                inside a function
-                        on the toplevel?
-                        inside an entity?
+        (* function usage issues
+        function_parameter_count_mismatch: target_function, actual_function
+        function_parameter_type_mismatch: target_function, actual_function *)
+        | FunctionParamCountMismatch of string * expr list * fdecl
+        | FunctionParamTypeMismatch of string * expr list * fdecl
 
-        you used an undeclared variable in a statement
-                inside a function
-                        on the toplevel?
-                        inside an entity?
-
-        you fucked up the function call somewhere
-                where was this statement that went wrong?
-                        inside a function
-                                on the toplevel?
-                                inside an entity?
-                what was the function we were trying to call?
-
-
-        you tried to call an entity, but you fucked up
-                did you try to get its value?
-                did you try to use its function?
-                        did the function not exist?
-*)
-
-
+       | *) 

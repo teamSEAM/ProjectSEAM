@@ -176,8 +176,27 @@ let main_checker top_level_program =
 
 
 let semantic_check unchecked_program =
+
+    let third (_, _, x) = x in
  
     (* check if checking_environment says there are any errors *) 
     let checked_environment = main_checker unchecked_program in
-    ""
-       
+
+    (* first check, a preliminary *)
+    let handler list_so_far next_error =
+        list_so_far @ (describe_error_type (third next_error)  )
+        in
+
+    let my_errors = List.fold_left handler [] checked_environment.errors in
+    let result = String.concat "" my_errors in
+    print_endline result
+      
+
+
+
+
+
+
+
+
+

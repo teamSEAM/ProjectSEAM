@@ -47,3 +47,28 @@ type toplevel_element =
 
 type program = toplevel_element list
 
+(* Nice. *)
+let c_equivalents obj = match obj with
+    | Str -> "char **" 
+    | Float -> "float"
+    | Int -> "int" 
+
+let c_ret_equivalents obj = match obj with
+    | Void -> "void"
+    | PrimitiveVariable(p) -> c_equivalents p
+
+let c_op obj = match obj with
+    | Add -> "+"
+    | Sub -> "-" 
+    | Mult -> "*" 
+    | Div -> "/" 
+    | Equal -> "==" 
+    | Neq -> "!="
+    | Less -> "<" 
+    | Leq -> "<=" 
+    | Greater -> ">" 
+    | Geq -> ">="
+
+let format_vdecl v = 
+        (c_equivalents (fst v)) :: [ " "; (snd v); ]
+
