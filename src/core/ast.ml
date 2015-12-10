@@ -28,11 +28,13 @@ type primitive = Str | Float | Int | Instance
 type array_size = NotAnArray | Dynamic | ArraySize of int
 type acting_type = primitive * array_size 
 
+type ret_type = Void | ActingType of acting_type
+type vdecl = acting_type * string
+
+(*
 type ret_type = Void | PrimitiveVariable of primitive
-
-
-
 type vdecl = primitive * string
+*)
 
 type fdecl = {
     vtype: ret_type; (* type of function *)
@@ -61,10 +63,22 @@ let c_equivalents obj = match obj with
     | Float -> "float"
     | Int -> "int" 
 
-let c_ret_equivalents obj = match obj with
-    | Void -> "void"
-    | PrimitiveVariable(p) -> c_equivalents p
+(* only for error representations! *)
+let acting_type_to_str obj_type = 
+        let primitive_equivalent = c_equivalents (fst obj_type) in
+        let format_type = match (snd obj_type) with
+                | Dynamic -> "[]"
+                | ArraySize(i) -> String.concat "" [" ["; string_of_int i; "]";]
+                | NotAnArray -> "" in
+        String.concat "" [primitive_equivalent; format_type]
 
+(*type array_size = NotAnArray | Dynamic | ArraySize of int
+type acting_type = primitive * array_size  *)
+
+(* generating the C code for anything involving arrays is so much
+more complicated than what I had before for non-arrays, so that will be moved
+out of AST. The functions in AST are just for generating convenient strings like
+"float" or "int" *)
 let c_op obj = match obj with
     | Add -> "+"
     | Sub -> "-" 
@@ -78,5 +92,5 @@ let c_op obj = match obj with
     | Geq -> ">="
 
 let format_vdecl v = 
-        (c_equivalents (fst v)) :: [ " "; (snd v); ]
+        (acting_type_to_str (fst v)) :: [ " "; (snd v); ]
 

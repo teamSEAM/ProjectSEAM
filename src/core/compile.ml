@@ -1,5 +1,14 @@
 include Ast
 
+let c_ret_equivalents obj = match obj with
+    | Void -> "void"
+    | ActingType(t) -> match (snd t) with
+        | Dynamic -> ""
+        | ArraySize(i) -> ""
+        | NotAnArray -> c_equivalents (fst t)
+
+
+
 (* Takes as input the checked AST-toplevel, and
 generates the C output *) 
 let translate checked_program = 
