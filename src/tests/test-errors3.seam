@@ -1,0 +1,15 @@
+# The theme of this test is variable declarations within functions that
+are on the toplevel #
+
+float f
+int x
+
+function main():
+	# should actually be fine because x shadows the toplevel x #
+	int x
+
+	# this, however, should not be fine # 
+	float x
+
+	print("Nothing here.")
+

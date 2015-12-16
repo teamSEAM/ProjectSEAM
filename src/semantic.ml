@@ -23,6 +23,9 @@ type translation_env = {
     variables: vdecl StringMap.t IntMap.t;
 
     entities: entity_decl StringMap.t; 
+
+    (* ONLY THE TOPLEVEL FUNCTIONS, for functions
+    within entities, we'll just peak inside the entity *)
     functions: fdecl StringMap.t;
 
     (* errors *)
@@ -55,6 +58,8 @@ let add_entity_decl env possible_error_locus entity_decl =
         { env with entities = updated_entities; } 
 
 (* very much like add_entity_decl but for functions *)
+(* issue: entity functions. those can have the same name, as
+long as within an entity there are no multiple declarations *)
 let add_function_decl env possible_error_locus function_decl =
     let name = function_decl.fname in
     let functions = env.functions in 
@@ -75,6 +80,8 @@ let add_function_decl env possible_error_locus function_decl =
         { env with functions = updated_functions; } 
 
 
+(* ALTERNATE VERSION OF THE ABOVE for within entities, it's just that this one
+will only search for function name clashes WITHIN the entity! *)
 
 (* returns an updated environment for variables *)
 let add_var_decl env possible_error_locus var_decl =
@@ -122,6 +129,20 @@ let add_var_decl env possible_error_locus var_decl =
         { env with variables = updated_mapping; }
     
 
+(* honestly like the add_var_decl generalized for functions. Make sure
+to specify the correct error locus before passing this in, and to make sure
+the environment's scope number is right... *)
+(* checks a function, updates environment *)
+let check_function env possible_error_locus func = 
+    (* 1. add variables *)
+    let f env current_vdecl =  
+        add_var_decl env possible_error_locus current_vdecl in
+
+    List.fold_left f env func.locals 
+   
+    (* 2. go through each statement, checking the types *)
+
+
 (* uses functions above to update the verification
     environment *)
 let main_checker top_level_program = 
@@ -142,36 +163,53 @@ let main_checker top_level_program =
             } in
      
     (* first go through toplevel things and register them*)
-    let register_toplevels env prog = 
-        (* register each one appropriately, 
-           TopLevel is there for possible error locus *)
-        let handler env top_lvl_decl = match top_lvl_decl with
-            | TopLevelFunction f -> add_function_decl env TopLevel f 
-            | TopLevelVar v -> add_var_decl env TopLevel v 
-            | TopLevelEntity e -> add_entity_decl env TopLevel e 
-            in
-        (* what emerges is a checked environment after toplevels *)
-        List.fold_left handler env prog 
-        in 
 
-    (* checks a function, updates environment *)
-    let check_function env possible_error_locus func = 
-
-        (* 1. add variables *)
-        let f env current_vdecl =  
-            (* add_var_decl env possible_error_locus var_decl *)
-            add_var_decl env possible_error_locus current_vdecl in
-        let env_updated_with_variables = List.fold_left f env func.locals in
-       
-        env_updated_with_variables
-        (* 2. go through each statement, checking the types *)
-        in
+    let env_with_toplevels =
+        let aux env prog = 
+            (* register each one appropriately, 
+               TopLevel is there for possible error locus *)
+            let handler env top_lvl_decl = match top_lvl_decl with
+                | TopLevelFunction f -> add_function_decl env TopLevel f 
+                | TopLevelVar v -> add_var_decl env TopLevel v 
+                | TopLevelEntity e -> add_entity_decl env TopLevel e 
+                in
+            (* what emerges is a checked environment after toplevels *)
+            List.fold_left handler env prog 
+            in 
+        aux environment top_level_program  in
 
 
-    let env_with_toplevels = register_toplevels environment top_level_program  in
-    env_with_toplevels
+
+    (* We're just going to iterate through all the  *)
+    (* only do the toplevel function *)
+
+    let checked_toplevel_function_env = 
+
+        let aux env toplevel_element = 
+
+            match toplevel_element with 
+                (* let check_function env possible_error_locus func *) 
+                | TopLevelFunction f -> 
+
+                    (* Update the environment to clean up the previous function scopes  *)
+                    let revised_variables =
+                        let empty_stringmap = StringMap.empty in
+                        IntMap.add 1 empty_stringmap env.variables 
+                        in
+                    let fixed_env = { env with current_scope = 1; variables = revised_variables;} in
+                    let locus = FunctionName(f.fname) in
+                    check_function fixed_env locus f 
+
+                (* discard any other sort of toplevel declaration *)
+                |  _ -> env in
+        List.fold_left aux env_with_toplevels top_level_program
+
+    in
+    checked_toplevel_function_env
+        
   (*  
     let check_top_functions =  
+
     let env_with_checked_top_functions = List.fold_left 
   *)
     (* declare a function checker that 

@@ -8,6 +8,7 @@ type error_locus =
         | TopLevel
         | EntityName of string
         | FunctionName of string
+        | EntitysFunction of string * string
 
 (* error_scope:
         obviously if it's 0, it's the toplevel, but *)
@@ -81,12 +82,13 @@ assembled together anyway *)
 
 let describe_error_locus = function 
         | TopLevel -> ["in the toplevel";]
-        | EntityName s -> ["an entity:"; s;]
-        | FunctionName s -> ["function:"; s;] 
+        | EntityName(s) -> ["in an entity:"; s;]
+        | FunctionName(f) -> ["in function:"; f;] 
+        | EntitysFunction(e, f) -> ["in function:";f;"in entity";e;] 
 
 let describe_error_scope = function
         | Scope i ->
-           if i > 0 then [", in scope"; string_of_int i;]
+           if i > 0 then ["in scope"; string_of_int i;]
            else []
 
 let describe_error_type type_obj = match type_obj with 

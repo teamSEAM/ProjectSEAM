@@ -1,3 +1,6 @@
+# The theme of this test suite is multiple declarations of entities and 
+toplevel functions #
+
 int s
 int s
 float f
