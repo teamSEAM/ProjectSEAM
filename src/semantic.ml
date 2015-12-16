@@ -1,7 +1,6 @@
 (* Errors will include Ast too *)
 include Errors
 
-
 (*
   * To analyze: 
   *     Return types
@@ -169,14 +168,7 @@ let main_checker top_level_program =
                 for that scope and for those functions
         *) 
 
-
-
-
-
-
-
 let semantic_check unchecked_program =
-
     let third (_, _, x) = x in
  
     (* check if checking_environment says there are any errors *) 
@@ -190,13 +182,3 @@ let semantic_check unchecked_program =
     let my_errors = List.fold_left handler [] checked_environment.errors in
     let result = String.concat "" my_errors in
     print_endline result
-      
-
-
-
-
-
-
-
-
-

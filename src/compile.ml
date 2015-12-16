@@ -7,39 +7,43 @@ let c_ret_equivalents obj = match obj with
         | ArraySize(i) -> ""
         | NotAnArray -> c_equivalents (fst t)
 
-
-
 (* Takes as input the checked AST-toplevel, and
-generates the C output *) 
-let translate checked_program = 
+   generates the C output *) 
+let translate checked_program =
+    (* Rename IDs to prevent clashes with libraries *)
+    let translate_id id =
+        String.concat "" ["__"; id;]
+    in
 
-    (* returns the expanded c expression for *)
-    let expand_expr expr_obj = 
-        let rec generate_expr expr_obj = match expr_obj with
-                | IntLit(i) -> [string_of_int i;]
-                | StrLit(str) -> [str;]
-                | Id(str) -> 
-                        let mystr = String.concat "" ["__"; str;] in
-                        [mystr;]
-                | Binop(left, op, right) -> 
-                        ["(";] 
-                        @ (generate_expr left)
-                        @ [")"; c_op op; "(";] 
-                        @ (generate_expr right) @ [ ")";]
-                | Assign(str, expr) -> [ (String.concat "" ["__"; str;]); "=";]
-                        @ ( generate_expr expr)
-                | _ -> [] (* TODO - WILL THROW AN ERROR. *)
-         in generate_expr expr_obj in
-
+    (* Recursively expands expressions into C *)
+    let rec expand_expr expr_obj = match expr_obj with
+        | IntLit(i) -> (* Integer literals *)
+            [string_of_int i;]
+        | StrLit(str) -> (* String literals *)
+            [str;]
+        | Id(str) -> (* Identifiers *)
+            [translate_id str;]
+        | Binop(left, op, right) -> (* Match binary operations *) 
+            ["(";] 
+            @ (expand_expr left)
+            @ [")"; c_op op; "(";] 
+            @ (expand_expr right) @ [ ")";]
+        | Assign(str, expr) -> (* Assignment of variables *)
+            [translate_id str;]
+            @ [" = ";]
+            @ (expand_expr expr)
+        | _ -> (* Unmatched expression -- SHOULD throw an error *)
+            []
+    in
+    
     (* We raise exceptions if stuff goes bad *)
-    let handle_fdecl current_fdecl = 
-        
-        
+    let handle_fdecl current_fdecl =  
         (* handle the type *)
         let ret_type = c_ret_equivalents (current_fdecl.vtype) in     
         let formals = "()" in 
         let function_name = 
-                if (String.compare current_fdecl.fname "main") == 0 then "program_ep"
+                if (String.compare current_fdecl.fname "main") == 0 then
+                    "program_ep"
                 else current_fdecl.fname in
         let statements = 
 
@@ -59,13 +63,13 @@ let translate checked_program =
 
                 (* use fold_right to generate the statements *)
                 let tokens = List.fold_right handle_stmt current_fdecl.body [] in
-                String.concat " " tokens in
+                String.concat " " tokens
+        in
 
-        let function_production = ret_type :: function_name ::
+    let function_production = ret_type :: function_name ::
                 formals :: "{" :: statements :: ["}"] 
                 in 
         function_production
-
         in
 
     let handle_toplevel list_so_far current_toplevel =
@@ -74,10 +78,10 @@ let translate checked_program =
                 | TopLevelFunction(fdecl) -> handle_fdecl fdecl
                 | TopLevelVar(v) -> []
                 | TopLevelEntity(e) -> []
-        in current @ list_so_far in
+        in current @ list_so_far 
+        in
+
     let string_tokens = List.fold_left handle_toplevel [] checked_program
         in
+
     String.concat " " string_tokens
-
-
-

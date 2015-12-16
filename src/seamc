@@ -14,8 +14,8 @@ if [ "$?" -ne "0" ]
 then
     echo "Error encountered while compiling: "
     echo $RETVAL
-    # rm temp.seami
-    # rm gen.c
+    rm temp.seami
+    rm gen.c
     exit 1
 else
     echo "Input program translated succesfully; compiling..."
@@ -30,7 +30,7 @@ gcc lib.c -c -o lib.o
 gcc lib.o gen.c -c -o gen.o
 gcc main.c lib.o gen.o -o $2
 
-# rm temp.seami
-# rm gen.c
+rm temp.seami
+rm gen.c
 
 echo "$2 created."

@@ -7,10 +7,11 @@ src/_build/*
 *.cmi
 *.seami
 *.o
+*.out
 *.log
-src/core/gen.c
-src/core/out
-src/core/seam
-src/core/scanner.ml
-src/core/parser.ml
-src/core/preprocessor
+src/gen.c
+src/out
+src/seam
+src/scanner.ml
+src/parser.ml
+src/preprocessor
