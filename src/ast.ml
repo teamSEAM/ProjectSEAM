@@ -63,15 +63,6 @@ let c_equivalents obj = match obj with
     | Float -> "float"
     | Int -> "int" 
 
-(* only for error representations! *)
-let acting_type_to_str obj_type = 
-        let primitive_equivalent = c_equivalents (fst obj_type) in
-        let format_type = match (snd obj_type) with
-                | Dynamic -> "[]"
-                | ArraySize(i) -> String.concat "" [" ["; string_of_int i; "]";]
-                | NotAnArray -> "" in
-        String.concat "" [primitive_equivalent; format_type]
-
 (*type array_size = NotAnArray | Dynamic | ArraySize of int
 type acting_type = primitive * array_size  *)
 
@@ -90,7 +81,4 @@ let c_op obj = match obj with
     | Leq -> "<=" 
     | Greater -> ">" 
     | Geq -> ">="
-
-let format_vdecl v = 
-        (acting_type_to_str (fst v)) :: [ " "; (snd v); ]
 

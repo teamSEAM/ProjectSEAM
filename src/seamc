@@ -31,6 +31,6 @@ gcc lib.o gen.c -c -o gen.o
 gcc main.c lib.o gen.o -o $2
 
 rm temp.seami
-rm gen.c
+#rm gen.c
 
 echo "$2 created."

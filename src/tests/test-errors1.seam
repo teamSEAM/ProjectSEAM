@@ -5,3 +5,12 @@ float f
 function main():
 	print("Hello TEAM SEAM!!")
 
+entity e:
+	float f
+	int i
+	int j
+	int k
+	function my_func():
+		print("Hello TEAM SEAM!!")
+
+

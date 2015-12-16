@@ -57,15 +57,48 @@ type error = error_locus * error_scope * error_type
 
 (* the convenient methods to print information about the errors *)
 
+
+(* Took them away from ast.ml because these are ONLY  for error representations,
+    NOT TO BE CONFUSED WITH CODE GENERATION! *)
+let acting_type_to_str obj_type = 
+        let primitive_equivalent = c_equivalents (fst obj_type) in
+        let format_type = match (snd obj_type) with
+                | Dynamic -> "[]"
+                | ArraySize(i) -> String.concat "" [" ["; string_of_int i; "]";]
+                | NotAnArray -> "" in
+        String.concat "" [primitive_equivalent; format_type]
+
+let format_vdecl v = 
+        (acting_type_to_str (fst v)) :: [ snd v; ]
+
+
+
+(* These following functions return lists of strings, since they're getting
+assembled together anyway *)
+
+
+
+
+let describe_error_locus = function 
+        | TopLevel -> ["in the toplevel";]
+        | EntityName s -> ["an entity:"; s;]
+        | FunctionName s -> ["function:"; s;] 
+
+let describe_error_scope = function
+        | Scope i ->
+           if i > 0 then [", in scope"; string_of_int i;]
+           else []
+
 let describe_error_type type_obj = match type_obj with 
 
 (* repeat declarations: *)
         | VariableRepeatDecl v ->   
-                "Repeat declaration of: " :: (format_vdecl v)
-
+                "Repeat declaration of variable:" :: (format_vdecl v)
+        | FunctionRepeatDecl f ->
+                ["Repeat declaration of function:"; f.fname;] 
+        | EntityRepeatDecl e ->
+                ["Repeat declaration of entity:"; e.name;] 
 (*
-        | FunctionRepeatDecl f
-        | EntityRepeatDecl of entity_decl
         (* usage of a variable we did not declare
         undeclared_variable: variable_name, expression
         undeclared_function: bad_function_name, expression
@@ -89,3 +122,17 @@ let describe_error_type type_obj = match type_obj with
         | FunctionParamTypeMismatch of string * expr list * fdecl
 
        | *) 
+
+
+
+let describe_error error_obj =
+    match error_obj with (locus, scope, e_type) -> 
+        (describe_error_type e_type) @ (describe_error_locus locus)
+        @ (describe_error_scope scope) 
+    (* first the locus *)
+    
+
+
+
+
+

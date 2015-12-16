@@ -150,18 +150,40 @@ let main_checker top_level_program =
             | TopLevelVar v -> add_var_decl env TopLevel v 
             | TopLevelEntity e -> add_entity_decl env TopLevel e 
             in
+        (* what emerges is a checked environment after toplevels *)
         List.fold_left handler env prog 
         in 
-    
-    register_toplevels environment top_level_program 
 
-    (* next, for each function in the toplevel:
-        1. add variables
-        2. go through each statement, checking the types
+    (* checks a function, updates environment *)
+    let check_function env possible_error_locus func = 
+
+        (* 1. add variables *)
+        let f env current_vdecl =  
+            (* add_var_decl env possible_error_locus var_decl *)
+            add_var_decl env possible_error_locus current_vdecl in
+        let env_updated_with_variables = List.fold_left f env func.locals in
+       
+        env_updated_with_variables
+        (* 2. go through each statement, checking the types *)
+        in
+
+
+    let env_with_toplevels = register_toplevels environment top_level_program  in
+    env_with_toplevels
+  (*  
+    let check_top_functions =  
+    let env_with_checked_top_functions = List.fold_left 
+  *)
+    (* declare a function checker that 
         3. the whole time, don't forget to set scope to 1,
         and make sure to rebuild the scope 1 each time
-        we do a different function 
-       
+        we do a different function *) 
+  
+    
+    (* apply this checking to each function in the toplevel *)
+
+
+     (*THEN, after that...
        for each entity in the toplevel:
                 1. add variables
                 2. do exactly the same thing above, but
@@ -169,14 +191,15 @@ let main_checker top_level_program =
         *) 
 
 let semantic_check unchecked_program =
-    let third (_, _, x) = x in
  
     (* check if checking_environment says there are any errors *) 
     let checked_environment = main_checker unchecked_program in
 
-    (* first check, a preliminary *)
+    (* Spits out all the errors *)
     let handler list_so_far next_error =
-        list_so_far @ (describe_error_type (third next_error)  )
+        let error_string = String.concat " " (describe_error next_error) in
+        let with_nl = String.concat "" [error_string; "\n";] in
+        list_so_far @ [ with_nl; ] 
         in
 
     let my_errors = List.fold_left handler [] checked_environment.errors in

@@ -1,0 +1,28 @@
+int s
+int s
+float f
+int f
+
+function main():
+	print("Hello TEAM SEAM!!")
+
+function main():
+	print("Repeat?")
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+	function my_func():
+		print("first version")
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+	function my_func():
+		print("first version")
+
+
