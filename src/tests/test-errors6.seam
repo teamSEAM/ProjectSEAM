@@ -1,0 +1,13 @@
+
+function main():
+	print("Should NOT work!")
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+
+	function hey(int i, int j):
+		int i
+		print("Hi")
