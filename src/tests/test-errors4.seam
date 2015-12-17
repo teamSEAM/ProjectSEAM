@@ -1,0 +1,19 @@
+function main():
+	print("No.")
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+	function hey():
+		print("Hi")
+	function hey():
+		print("ey")
+
+
+entity f:
+	function nothing():
+		print("Hey hey")
+	function nothing():
+		print("duplicate")

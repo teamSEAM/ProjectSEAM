@@ -82,6 +82,33 @@ let add_function_decl env possible_error_locus function_decl =
 
 (* ALTERNATE VERSION OF THE ABOVE for within entities, it's just that this one
 will only search for function name clashes WITHIN the entity! *)
+(* This is annoying, but because function declarations inside Entities are this way,
+we don't really have any other choice... *)
+let verify_entity_functions env entity =
+    (* Just iterate through functions, make sure names don't show up twice *)
+    let map = StringMap.empty in 
+    let aux result f_decl = 
+        let e = fst result and m = snd result in
+        let search = 
+            try 
+                (function a -> true) (StringMap.find f_decl.fname m )
+            with
+                Not_found -> false
+            in
+        if search then
+            (* error message, because there shouldn't be another with same name *)
+            let new_error = (
+                    EntityName(entity.name), 
+                    Scope(e.current_scope),
+                    FunctionRepeatDecl(f_decl))
+            in
+            ( { e with errors = new_error :: e.errors }, m)
+        else 
+            ( e, (StringMap.add f_decl.fname f_decl m)) in
+
+    let out = List.fold_left aux (env, map) entity.functions in
+    fst out
+
 
 (* returns an updated environment for variables *)
 let add_var_decl env possible_error_locus var_decl =
@@ -143,6 +170,7 @@ let check_function env possible_error_locus func =
     (* 2. go through each statement, checking the types *)
 
 
+
 (* uses functions above to update the verification
     environment *)
 let main_checker top_level_program = 
@@ -164,7 +192,7 @@ let main_checker top_level_program =
      
     (* first go through toplevel things and register them*)
 
-    let env_with_toplevels =
+    let env_registered_toplevels =
         let aux env prog = 
             (* register each one appropriately, 
                TopLevel is there for possible error locus *)
@@ -178,15 +206,20 @@ let main_checker top_level_program =
             in 
         aux environment top_level_program  in
 
+    (* ANNOYING but before we look into the statements, might want to first make sure that 
+    entity definitions are sensible *)
+
+    let env_checked_toplevels = 
+        let aux = fun env -> function TopLevelEntity(e) -> verify_entity_functions env e | _ -> env in  
+        List.fold_left aux env_registered_toplevels top_level_program in
 
 
     (* We're just going to iterate through all the  *)
     (* only do the toplevel function *)
 
-    let checked_toplevel_function_env = 
+    let checking_functions = 
 
         let aux env toplevel_element = 
-
             match toplevel_element with 
                 (* let check_function env possible_error_locus func *) 
                 | TopLevelFunction f -> 
@@ -202,21 +235,12 @@ let main_checker top_level_program =
 
                 (* discard any other sort of toplevel declaration *)
                 |  _ -> env in
-        List.fold_left aux env_with_toplevels top_level_program
-
+        List.fold_left aux env_checked_toplevels top_level_program
     in
-    checked_toplevel_function_env
-        
-  (*  
-    let check_top_functions =  
 
-    let env_with_checked_top_functions = List.fold_left 
-  *)
-    (* declare a function checker that 
-        3. the whole time, don't forget to set scope to 1,
-        and make sure to rebuild the scope 1 each time
-        we do a different function *) 
-  
+    checking_functions
+        
+
     
     (* apply this checking to each function in the toplevel *)
 
