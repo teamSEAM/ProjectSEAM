@@ -109,7 +109,11 @@ to specify the correct error locus before passing this in, and to make sure
 the environment's scope number is right... *)
 (* checks a function, updates environment *)
 let check_function env possible_error_locus func = 
-    (* 0: DON'T FORGET THE PARAMETERS *)
+    (* 0: TODO - DON'T FORGET THE PARAMETERS *)
+
+
+
+
     (* 1. add variables *)
     let f env current_vdecl =  
         add_var_decl env possible_error_locus current_vdecl in
