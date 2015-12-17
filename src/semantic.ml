@@ -1,18 +1,19 @@
-(* Errors will include Ast too *)
-include Errors
+include Errors (* note how if we need Ast, Errors includes Ast *)
 
-(*
-  * To analyze: 
-  *     Return types
-  *     Expression type checks 
-  *     Undeclared identifiers being used
-  *     Unset identifiers being used (to an extent)
-*)
-(* learned this one-liner for int maps because ocaml doesn't support
-int Maps natively?? *)
-module IntMap = Map.Make(struct type t = int let compare = compare end)
+(* ********************************************************************** *)
+(*              semantic.ml is responsible for checking
+          *     Return types
+          *     Expression type checks 
+          *     Undeclared identifiers being used
+          *     Unset identifiers being used (to an extent)               *)
+(* ********************************************************************** *)
+
+
+(* ********************************************************************** *)
+(*              Environment, types, settings made here                    *)
+(* ********************************************************************** *)
+module IntMap = Map.Make(struct type t = int let compare = compare end) (* for int map support *)
 module StringMap = Map.Make(String)
-
 
 type translation_env = {
 
@@ -32,82 +33,29 @@ type translation_env = {
     errors: error list;
 }
 
-(* aliasing the StringMap just for familiarity *)
-let search_stringmap target map = 
-    StringMap.mem target map
-
-let add_stringmap key addition map = 
-    StringMap.add key addition map
-
-
-(* for entities *)
-let add_entity_decl env possible_error_locus entity_decl =
-    let name = entity_decl.name in
-    let entities = env.entities in
-    let found = search_stringmap name entities in
-    if found then
-        (* error message, because there shouldn't be another with same name *)
-        let new_error = (
-                possible_error_locus,
-                Scope(env.current_scope),
-                EntityRepeatDecl(entity_decl))
-            in
-        { env with errors = new_error :: env.errors }
-    else
-        let updated_entities = StringMap.add name entity_decl entities in
-        { env with entities = updated_entities; } 
-
-(* very much like add_entity_decl but for functions *)
-(* issue: entity functions. those can have the same name, as
-long as within an entity there are no multiple declarations *)
-let add_function_decl env possible_error_locus function_decl =
-    let name = function_decl.fname in
-    let functions = env.functions in 
-    let found = search_stringmap name functions in
-    if found then
-        (* error message, because there shouldn't be another with same name *)
-        let new_error = (
-                (* This is why we force user of add_function_decl to include its 
-                own name. Here, if it is somewhere not in the toplevel, then 
-                it must be within an entity that we declared repeatedly *)
-                possible_error_locus,
-                Scope(env.current_scope),
-                FunctionRepeatDecl(function_decl))
-            in
-        { env with errors = new_error :: env.errors }
-    else
-        let updated_functions = StringMap.add name function_decl functions in
-        { env with functions = updated_functions; } 
+(* an example of how our checking environmentis made *)
+let make_basic_env = 
+    let scope_0_variables =
+        let empty_intmap = IntMap.empty in
+        let empty_stringmap = StringMap.empty in
+        IntMap.add 0 empty_stringmap empty_intmap
+        in
+    {
+        current_scope = 0;
+        variables = scope_0_variables;
+        entities = StringMap.empty;
+        functions = StringMap.empty;
+        errors = [];
+    }
+     
+(* NOTE TO SELF: THIS IS NOW STRINGMAP WORKS *)
+(*  StringMap.mem target map *)
+(*  StringMap.add key addition map *)
 
 
-(* ALTERNATE VERSION OF THE ABOVE for within entities, it's just that this one
-will only search for function name clashes WITHIN the entity! *)
-(* This is annoying, but because function declarations inside Entities are this way,
-we don't really have any other choice... *)
-let verify_entity_functions env entity =
-    (* Just iterate through functions, make sure names don't show up twice *)
-    let map = StringMap.empty in 
-    let aux result f_decl = 
-        let e = fst result and m = snd result in
-        let search = 
-            try 
-                (function a -> true) (StringMap.find f_decl.fname m )
-            with
-                Not_found -> false
-            in
-        if search then
-            (* error message, because there shouldn't be another with same name *)
-            let new_error = (
-                    EntityName(entity.name), 
-                    Scope(e.current_scope),
-                    FunctionRepeatDecl(f_decl))
-            in
-            ( { e with errors = new_error :: e.errors }, m)
-        else 
-            ( e, (StringMap.add f_decl.fname f_decl m)) in
-
-    let out = List.fold_left aux (env, map) entity.functions in
-    fst out
+(* ********************************************************************** *)
+(*              this section handles base checking ops                    *) 
+(* ********************************************************************** *)
 
 
 (* returns an updated environment for variables *)
@@ -123,7 +71,7 @@ let add_var_decl env possible_error_locus var_decl =
                 (* get the map corresponding to this scope *)
                 let var_map = IntMap.find scope_number env.variables in
                 (* see whether the variable is present *)
-                let result = search_stringmap var var_map in
+                let result = StringMap.mem var var_map in
                 if result then 
                     scope_number
                 else
@@ -170,87 +118,145 @@ let check_function env possible_error_locus func =
     (* 2. go through each statement, checking the types *)
 
 
+(* ********************************************************************** *)
+(*                  a lot of special cases at toplevel                    *)
+(* ********************************************************************** *)
 
-(* uses functions above to update the verification
-    environment *)
-let main_checker top_level_program = 
+(* for entities, used by toplevel handler *)
+let add_entity_decl env possible_error_locus entity_decl =
+    let name = entity_decl.name in
+    let entities = env.entities in
+    let found = StringMap.mem name entities in
+    if found then
+        (* error message, because there shouldn't be another with same name *)
+        let new_error = (
+                possible_error_locus,
+                Scope(env.current_scope),
+                EntityRepeatDecl(entity_decl))
+            in
+        { env with errors = new_error :: env.errors }
+    else
+        let updated_entities = StringMap.add name entity_decl entities in
+        { env with entities = updated_entities; } 
 
-    (* first declare our environment *)
-    let environment = 
-            let scope_0_variables =
-                let empty_intmap = IntMap.empty in
-                let empty_stringmap = StringMap.empty in
-                IntMap.add 0 empty_stringmap empty_intmap
+
+
+(* for toplevel functions, used by toplevel handler *)
+let add_function_decl env possible_error_locus function_decl =
+    let name = function_decl.fname in
+    let functions = env.functions in 
+    let found = StringMap.mem name functions in
+    if found then
+        (* error message, because there shouldn't be another with same name *)
+        let new_error = (
+                (* This is why we force user of add_function_decl to include its 
+                own name. Here, if it is somewhere not in the toplevel, then 
+                it must be within an entity that we declared repeatedly *)
+                possible_error_locus,
+                Scope(env.current_scope),
+                FunctionRepeatDecl(function_decl))
+            in
+        { env with errors = new_error :: env.errors }
+    else
+        let updated_functions = StringMap.add name function_decl functions in
+        { env with functions = updated_functions; } 
+
+
+
+
+let handle_toplevel environment ast_head =
+    let register_aux env prog = 
+        (* depends on the type of toplevel decl *)
+        let handler env top_lvl_decl = match top_lvl_decl with
+            | TopLevelFunction f -> add_function_decl env TopLevel f 
+            | TopLevelVar v -> add_var_decl env TopLevel v 
+            | TopLevelEntity e -> add_entity_decl env TopLevel e 
+            in
+        List.fold_left handler env prog 
+        in 
+
+    (* make sure entity declarations don't have duplicate functions *)
+    (* note we couldn't reuse the add-function thing because these aren't
+    added anywhere - entity/function associates are just looked up if need be *)
+
+     let verify_entity_functions env entity =
+        let map = StringMap.empty in 
+        let aux result f_decl = 
+            let e = fst result and m = snd result in
+            let search = 
+                try  (function a -> true) (StringMap.find f_decl.fname m )
+                with Not_found -> false in
+            if search then
+                (* error message, because there shouldn't be another with same name *)
+                let new_error = (
+                        EntityName(entity.name), 
+                        Scope(e.current_scope),
+                        FunctionRepeatDecl(f_decl))
                 in
-            {
-                current_scope = 0;
-                variables = scope_0_variables;
-                entities = StringMap.empty;
-                functions = StringMap.empty;
-                errors = [];
-            } in
-     
-    (* first go through toplevel things and register them*)
+                ( { e with errors = new_error :: e.errors }, m)
+            else 
+                ( e, (StringMap.add f_decl.fname f_decl m)) in
 
-    let env_registered_toplevels =
-        let aux env prog = 
-            (* register each one appropriately, 
-               TopLevel is there for possible error locus *)
-            let handler env top_lvl_decl = match top_lvl_decl with
-                | TopLevelFunction f -> add_function_decl env TopLevel f 
-                | TopLevelVar v -> add_var_decl env TopLevel v 
-                | TopLevelEntity e -> add_entity_decl env TopLevel e 
-                in
-            (* what emerges is a checked environment after toplevels *)
-            List.fold_left handler env prog 
-            in 
-        aux environment top_level_program  in
+        let out = List.fold_left aux (env, map) entity.functions in
+        fst out in
 
-    (* ANNOYING but before we look into the statements, might want to first make sure that 
-    entity definitions are sensible *)
-
-    let env_checked_toplevels = 
+    let check_entity_functions input_env ast_head = 
         let aux = fun env -> function TopLevelEntity(e) -> verify_entity_functions env e | _ -> env in  
-        List.fold_left aux env_registered_toplevels top_level_program in
+        List.fold_left aux input_env ast_head in
 
+  
+    let registered = register_aux environment ast_head in
+    check_entity_functions registered ast_head
+
+    (* Also needs something to make sure entity declarations don't have
+    duplicate variables, but this is easier because the normal
+    variable checking works for this: *)
+
+
+
+
+(* ********************************************************************** *)
+(*                   main compiler's entry and usage point                *)
+(* ********************************************************************** *)
+
+let main_checker ast_head = 
+
+    (* take care of setup *)
+    let environment = make_basic_env in
+   
+    let toplevel_done = handle_toplevel environment ast_head in 
 
     (* We're just going to iterate through all the  *)
     (* only do the toplevel function *)
 
-    let checking_functions = 
+    let top_f_aux env toplevel_element = match toplevel_element with 
+            (* let check_function env possible_error_locus func *) 
+            | TopLevelFunction f -> 
 
-        let aux env toplevel_element = 
-            match toplevel_element with 
-                (* let check_function env possible_error_locus func *) 
-                | TopLevelFunction f -> 
+                (* Update the environment to clean up the previous function scopes  *)
+                let revised_variables =
+                    let empty_stringmap = StringMap.empty in
+                    IntMap.add 1 empty_stringmap env.variables 
+                    in
+                let fixed_env = { env with current_scope = 1; variables = revised_variables;} in
+                let locus = FunctionName(f.fname) in
+                check_function fixed_env locus f 
 
-                    (* Update the environment to clean up the previous function scopes  *)
-                    let revised_variables =
-                        let empty_stringmap = StringMap.empty in
-                        IntMap.add 1 empty_stringmap env.variables 
-                        in
-                    let fixed_env = { env with current_scope = 1; variables = revised_variables;} in
-                    let locus = FunctionName(f.fname) in
-                    check_function fixed_env locus f 
-
-                (* discard any other sort of toplevel declaration *)
-                |  _ -> env in
-        List.fold_left aux env_checked_toplevels top_level_program
-    in
-
-    checking_functions
+            (* discard any other sort of toplevel declaration *)
+            |  _ -> env in
         
+    (* apply function above, and get one with a checked toplevel functions *)
+    let toplevel_functions_done = List.fold_left top_f_aux toplevel_done ast_head in
+ 
+    (*Now do the same for every entity: 
+        1. add variables
+        2. do function by function *)   
+    let do_entities env toplevel_element = match toplevel_element with
+            | TopLevelEntity e -> env
+            | _ -> env in
 
+    List.fold_left do_entities toplevel_functions_done ast_head
     
-    (* apply this checking to each function in the toplevel *)
-
-
-     (*THEN, after that...
-       for each entity in the toplevel:
-                1. add variables
-                2. do exactly the same thing above, but
-                for that scope and for those functions
-        *) 
 
 let semantic_check unchecked_program =
  
