@@ -1,0 +1,16 @@
+function main():
+	print("Should work!")
+
+int i
+int j
+
+entity e:
+	float f
+	int i
+	int j
+	int k
+
+	function hey():
+		int i
+		int j
+		print("Hi")

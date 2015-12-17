@@ -22,13 +22,24 @@ else
 fi
 
 # Append needed include to start of file; TODO: put in compiler
+
+
+
+# Attention: since we've added the backend, make sure to get the SDL development
+# at apt-get install libsdl2-dev 
+# not sure if this works on Macs, see lazyfoo.net/tutorials/SDL/ the first tutorial
+
+
 # See Google: http://superuser.com/questions/246837/how-do-i-add-text-to-the-beginning-of-a-file-in-bash
 echo "#include \"gen.h\"" | cat - gen.c > temp && mv temp gen.c
 echo "#include \"lib.h\"" | cat - gen.c > temp && mv temp gen.c
 
 gcc lib.c -c -o lib.o
+# This is their code
 gcc lib.o gen.c -c -o gen.o
-gcc main.c lib.o gen.o -o $2
+
+
+gcc main.c lib.o gen.o -lSDL2  -o $2
 
 rm temp.seami
 #rm gen.c

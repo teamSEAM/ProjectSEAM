@@ -8,7 +8,7 @@ type error_locus =
         | TopLevel
         | EntityName of string
         | FunctionName of string
-        | EntitysFunction of string * string
+        | EntitysFunction of string * string (* entity, then function names *)
 
 (* error_scope:
         obviously if it's 0, it's the toplevel, but *)

@@ -109,6 +109,7 @@ to specify the correct error locus before passing this in, and to make sure
 the environment's scope number is right... *)
 (* checks a function, updates environment *)
 let check_function env possible_error_locus func = 
+    (* 0: DON'T FORGET THE PARAMETERS *)
     (* 1. add variables *)
     let f env current_vdecl =  
         add_var_decl env possible_error_locus current_vdecl in
@@ -211,7 +212,8 @@ let handle_toplevel environment ast_head =
     (* Also needs something to make sure entity declarations don't have
     duplicate variables, but this is easier because the normal
     variable checking works for this: *)
-
+    (* Instead of checking here, we'll just do this as part of our normal entity function handling, 
+    because we begin that by adding the variables, in fact *)
 
 
 
@@ -252,7 +254,41 @@ let main_checker ast_head =
         1. add variables
         2. do function by function *)   
     let do_entities env toplevel_element = match toplevel_element with
-            | TopLevelEntity e -> env
+            | TopLevelEntity e ->
+               
+                (* FIRST, new entity, move from scope #0 to a fresh #1: *)
+                (* TODO: GENERALIZE THIS scope manipulation to a function *)
+                let revised_env  =
+                    let empty_stringmap = StringMap.empty in
+                    let new_vars = IntMap.add 1 empty_stringmap env.variables in
+                    { env with current_scope = 1; variables = new_vars;} in 
+
+                (* Next add the variables, making sure to catch repeat declarations *)
+                (* error locus: an entity's toplevel *)
+                let possible_error_locus = EntityName(e.name) in
+                let env_with_variables_added = 
+                    let aux current_env current_vdecl =
+                        add_var_decl current_env possible_error_locus current_vdecl in
+                    List.fold_left aux revised_env e.members in
+
+                
+                let check_function_aux curr_env curr_fdecl = 
+
+                    (* We really need a generalized scope manipulator function ...  *)
+                    (* But yeah, function contents in entities are scope #2 *)
+                    let revised_env  =
+                        let empty_stringmap = StringMap.empty in
+                        let new_vars = IntMap.add 2 empty_stringmap curr_env.variables in
+                        { env with current_scope = 2; variables = new_vars;} in 
+
+                    (* Locus depends on entity and function so... *)
+                    let possible_error_locus = EntitysFunction(e.name, curr_fdecl.fname) in
+
+                    (* Now we check functions *)
+                    check_function revised_env possible_error_locus curr_fdecl in
+
+                List.fold_left check_function_aux env_with_variables_added e.functions
+
             | _ -> env in
 
     List.fold_left do_entities toplevel_functions_done ast_head

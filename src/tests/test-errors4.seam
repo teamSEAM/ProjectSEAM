@@ -1,19 +1,16 @@
+
 function main():
-	print("No.")
+	print("Shouldn't work because of entity")
+
+# this tests whether we can detect that there are multiple
+variable AND function declarations in e #
 
 entity e:
 	float f
 	int i
-	int j
+	int i
 	int k
 	function hey():
 		print("Hi")
 	function hey():
 		print("ey")
-
-
-entity f:
-	function nothing():
-		print("Hey hey")
-	function nothing():
-		print("duplicate")
