@@ -135,6 +135,6 @@ stmt:
 | RETURN expr SEMI { Return($2) }
 | PRINT expr SEMI { Print($2) } 
 
-| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
-| IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
+/*| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+*/| IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
 

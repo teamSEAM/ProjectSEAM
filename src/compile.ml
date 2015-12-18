@@ -63,11 +63,11 @@ let translate checked_program =
                                     ["if(";]
                                     @ (expand_expr expr @ ([")";])) 
                                     @["\n{";]  
-                                    @ (handle_stmt s1 [] @ (["\n}";]))
+                                    @ (handle_stmt s1 []  @ (["\n}";]))
                                     @["else\n{";]
-                                    @( handle_stmt s2 [] @(["}";]))
+                                    @( handle_stmt s2 []  @(["}";]))
                                     @ list_so_far 
-
+				
                                 (*|Block(stmts) ->
                                     "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
                                 | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ 
