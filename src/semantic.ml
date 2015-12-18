@@ -303,8 +303,7 @@ let main_checker ast_head =
     List.fold_left do_entities toplevel_functions_done ast_head
     
 
-let semantic_check unchecked_program =
- 
+let semantic_check unchecked_program = 
     (* check if checking_environment says there are any errors *) 
     let checked_environment = main_checker unchecked_program in
 
@@ -317,4 +316,8 @@ let semantic_check unchecked_program =
 
     let my_errors = List.fold_left handler [] checked_environment.errors in
     let result = String.concat "" my_errors in
-    print_endline result
+    
+    if List.length checked_environment.errors == 0 then
+        ""
+    else
+        result (* We return a string from semantic; if empty, no errors *)

@@ -7,15 +7,15 @@ then
     exit 1
 fi
 
-
 cat $1 | ./preprocessor > temp.seami
-RETVAL=$(cat temp.seami | ./seam > gen.c) 
+cat temp.seami | ./seam > gen.c
 if [ "$?" -ne "0" ] 
 then
     echo "Error encountered while compiling: "
-    echo $RETVAL
-    rm temp.seami
-    rm gen.c
+    cat gen.c
+
+    #rm temp.seami
+    #rm gen.c
     exit 1
 else
     echo "Input program translated succesfully; compiling..."
@@ -37,11 +37,9 @@ echo "#include \"lib.h\"" | cat - gen.c > temp && mv temp gen.c
 gcc lib.c -c -o lib.o
 # This is their code
 gcc lib.o gen.c -c -o gen.o
-
-
 gcc main.c lib.o gen.o -lSDL2  -o $2
 
-rm temp.seami
+#rm temp.seami
 #rm gen.c
 
 echo "$2 created."
