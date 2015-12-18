@@ -1,0 +1,6 @@
+function main():
+	print("Hello TEAM SEAM!!")
+	#if(1==1):
+	#	print("Correct Eval of 1")
+	#else:
+	#	print("Wrong Eval but at least we printed")

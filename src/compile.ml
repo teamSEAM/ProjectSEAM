@@ -48,7 +48,7 @@ let translate checked_program =
         let statements = 
 
                 (* too many layers of "let", this will be refactored later *)
-                let handle_stmt current_stmt list_so_far =
+                let rec handle_stmt current_stmt list_so_far =
                         match current_stmt with
 
                                 | Print(expr) ->
@@ -58,8 +58,25 @@ let translate checked_program =
                                         | _ -> [] (* TODO throw error *))
                                 | Return(expr) ->
                                    "return" :: (expand_expr expr @ (";" :: list_so_far ))
+
+                                | If(expr,s1,s2)->(* IF[expr{STMT1} ELSE {STMT}*)
+                                    ["if(";]
+                                    @ (expand_expr expr @ ([")";])) 
+                                    @["\n{";]  
+                                    @ (handle_stmt s1 [] @ (["\n}";]))
+                                    @["else\n{";]
+                                    @( handle_stmt s2 [] @(["}";]))
+                                    @ list_so_far 
+
+                                (*|Block(stmts) ->
+                                    "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+                                | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ 
+                                    ")\n" ^ string_of_stmt s
+                                | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" 
+                                    ^ string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
+                                 *)
                                 | _ -> "" :: list_so_far
-                       in
+        in
 
                 (* use fold_right to generate the statements *)
                 let tokens = List.fold_right handle_stmt current_fdecl.body [] in
