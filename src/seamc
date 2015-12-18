@@ -7,6 +7,20 @@ then
     exit 1
 fi
 
+# Check version
+uname -a | grep -q "Ubuntu"
+if [ "$?" -ne "0" ]
+then
+    echo "Warning: Script only tested on Ubuntu"
+fi
+
+# Check if libsdl2-dev is installed
+dpkg-query -l libsdl2-dev > /dev/null
+if [ "$?" -ne "0" ]
+then
+    echo "Warning: libsdl2-dev not installed! Compilation may fail!"
+fi
+
 cat $1 | ./preprocessor > temp.seami
 cat temp.seami | ./seam > gen.c
 if [ "$?" -ne "0" ] 
