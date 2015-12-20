@@ -8,6 +8,8 @@ type expr =
   | Id of string (* IDs are always strings *)
   | Binop of expr * op * expr (* Binary expressions *)
   | Assign of string * expr (* Assignment is ID + an expression *)
+  | Field of string * string (* Entity id and field id *)
+  | Method of string * string * expr list (* Entity method call *)
   | Call of string * expr list (* A call has a function name and list of
                                  arguments, which are all expressions *)
   | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used
