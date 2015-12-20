@@ -5,8 +5,8 @@
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LSQUAREBRACE RSQUAREBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
-%token EQ NEQ LT LEQ GT GEQ 
-%token IF ELSE 
+%token EQ NEQ LT LEQ GT GEQ
+%token IF ELSE
 %token PRINT RETURN FUNCTION ENTITY %token <int> INT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
@@ -40,7 +40,7 @@ acting_type:
                 $1, Dynamic }
 
 ret_type:
-    | FUNCTION acting_type  FUNCTION { ActingType($2) } 
+    | FUNCTION acting_type  FUNCTION { ActingType($2) }
     | FUNCTION { Void }
 
 vdecl_list:
@@ -87,7 +87,7 @@ fdecl_list:
 entity_decl:
         ENTITY ID LBRACE vdecl_list fdecl_list RBRACE
         {
-          { 
+          {
                         name = $2;
                         members = $4;
                         functions = $5;
@@ -133,8 +133,7 @@ stmt:
   expr SEMI { Expr($1) }
 | LBRACE stmt_list RBRACE { Block(List.rev $2) }
 | RETURN expr SEMI { Return($2) }
-| PRINT expr SEMI { Print($2) } 
+| PRINT expr SEMI { Print($2) }
 
 /*| IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
 */| IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
-

@@ -18,7 +18,7 @@ void start_SDL(int width, int height)
 	else
 	{
         // If SDL loaded, create a window and a surface we can draw to
-		sdlWindow = SDL_CreateWindow( "TEAM SEAM", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+		sdlWindow = SDL_CreateWindow( "TEAM SEAM", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             width, height, SDL_WINDOW_SHOWN );
 		if( sdlWindow == NULL )
 		{

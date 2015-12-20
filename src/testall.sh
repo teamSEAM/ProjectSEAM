@@ -64,7 +64,7 @@ Check() {
 
     generatedfiles="$generatedfiles ${basename}.out" &&
     Run "$COMPILER" $1 prog &&
-    ./prog > ${basename}.out && 
+    ./prog > ${basename}.out &&
     rm -f prog &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 

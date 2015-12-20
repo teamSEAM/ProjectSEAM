@@ -26,7 +26,7 @@ type stmt =
 (* To add: floats, instances, boolean *)
 type primitive = Str | Float | Int | Instance
 type array_size = NotAnArray | Dynamic | ArraySize of int
-type acting_type = primitive * array_size 
+type acting_type = primitive * array_size
 
 type ret_type = Void | ActingType of acting_type
 type vdecl = acting_type * string
@@ -59,9 +59,9 @@ type program = toplevel_element list
 
 (* Nice. *)
 let c_equivalents obj = match obj with
-    | Str -> "char **" 
+    | Str -> "char **"
     | Float -> "float"
-    | Int -> "int" 
+    | Int -> "int"
 
 (*type array_size = NotAnArray | Dynamic | ArraySize of int
 type acting_type = primitive * array_size  *)
@@ -72,13 +72,12 @@ out of AST. The functions in AST are just for generating convenient strings like
 "float" or "int" *)
 let c_op obj = match obj with
     | Add -> "+"
-    | Sub -> "-" 
-    | Mult -> "*" 
-    | Div -> "/" 
-    | Equal -> "==" 
+    | Sub -> "-"
+    | Mult -> "*"
+    | Div -> "/"
+    | Equal -> "=="
     | Neq -> "!="
-    | Less -> "<" 
-    | Leq -> "<=" 
-    | Greater -> ">" 
+    | Less -> "<"
+    | Leq -> "<="
+    | Greater -> ">"
     | Geq -> ">="
-

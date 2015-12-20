@@ -1,4 +1,4 @@
-#include "gen.h" 
+#include "gen.h"
 
 int main(int argc, char** argv){
 
@@ -8,6 +8,6 @@ int main(int argc, char** argv){
     program_ep();
     //delay(1500);
     //stop_SDL();
-    
+
     return 0;
 }

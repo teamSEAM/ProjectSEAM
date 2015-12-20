@@ -1,7 +1,7 @@
 type action = Ast | Interpret | Bytecode | Compile
 
 let _ =
-    try 
+    try
         let lexbuf = Lexing.from_channel stdin in
         let program = Parser.program Scanner.token lexbuf in
         let verified = Semantic.semantic_check program in

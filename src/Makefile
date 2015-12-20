@@ -1,4 +1,4 @@
-OBJS = ast.cmo errors.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo 
+OBJS = ast.cmo errors.cmo parser.cmo scanner.cmo semantic.cmo compile.cmo seam.cmo
 TESTS = \
 hello
 
@@ -64,4 +64,3 @@ seam.cmx : semantic.cmx scanner.cmx parser.cmx compile.cmx
 semantic.cmo : errors.cmo ast.cmo
 semantic.cmx : errors.cmx ast.cmx
 parser.cmi : ast.cmo
-
