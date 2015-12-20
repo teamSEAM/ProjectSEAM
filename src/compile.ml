@@ -1,5 +1,17 @@
 include Ast
 
+module StringMap = Map.Make(String)
+
+type scope = {
+  vdecls: vdecl StringMap.t;
+  fdecls: fdecl StringMap.t
+}
+
+type environment = {
+  entity_decls: entity_decl StringMap.t;
+  scopes: scope list;
+}
+
 let c_ret_equivalents obj = match obj with
     | Void -> "void"
     | ActingType(t) -> match (snd t) with
