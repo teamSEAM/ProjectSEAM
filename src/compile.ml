@@ -8,7 +8,7 @@ let c_ret_equivalents obj = match obj with
         | NotAnArray -> c_equivalents (fst t)
 
 (* Takes as input the checked AST-toplevel, and
-   generates the C output *) 
+   generates the C output *)
 let translate checked_program =
     (* Rename IDs to prevent clashes with libraries *)
     let translate_id id =
@@ -23,10 +23,10 @@ let translate checked_program =
             [str;]
         | Id(str) -> (* Identifiers *)
             [translate_id str;]
-        | Binop(left, op, right) -> (* Match binary operations *) 
-            ["(";] 
+        | Binop(left, op, right) -> (* Match binary operations *)
+            ["(";]
             @ (expand_expr left)
-            @ [")"; c_op op; "(";] 
+            @ [")"; c_op op; "(";]
             @ (expand_expr right) @ [ ")";]
         | Assign(str, expr) -> (* Assignment of variables *)
             [translate_id str;]
@@ -35,24 +35,24 @@ let translate checked_program =
         | _ -> (* Unmatched expression -- SHOULD throw an error *)
             []
     in
-    
+
     (* We raise exceptions if stuff goes bad *)
-    let handle_fdecl current_fdecl =  
+    let handle_fdecl current_fdecl =
         (* handle the type *)
-        let ret_type = c_ret_equivalents (current_fdecl.vtype) in     
-        let formals = "()" in 
-        let function_name = 
+        let ret_type = c_ret_equivalents (current_fdecl.vtype) in
+        let formals = "()" in
+        let function_name =
                 if (String.compare current_fdecl.fname "main") == 0 then
                     "program_ep"
                 else current_fdecl.fname in
-        let statements = 
+        let statements =
 
                 (* too many layers of "let", this will be refactored later *)
                 let rec handle_stmt current_stmt list_so_far =
                         match current_stmt with
 
                                 | Print(expr) ->
-                                   (match expr with 
+                                   (match expr with
                                         | StrLit(str) | Id(str) -> "_seam_print(" ::
                                                 ((expand_expr expr) @ (");" :: list_so_far ) )
                                         | _ -> [] (* TODO throw error *))
@@ -61,18 +61,18 @@ let translate checked_program =
 
                                 | If(expr,s1,s2)->(* IF[expr{STMT1} ELSE {STMT}*)
                                     ["if(";]
-                                    @ (expand_expr expr @ ([")";])) 
-                                    @["\n{";]  
+                                    @ (expand_expr expr @ ([")";]))
+                                    @["\n{";]
                                     @ (handle_stmt s1 []  @ (["\n}";]))
                                     @["else\n{";]
                                     @( handle_stmt s2 []  @(["}";]))
-                                    @ list_so_far 
-				
+                                    @ list_so_far
+
                                 (*|Block(stmts) ->
                                     "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-                                | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ 
+                                | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^
                                     ")\n" ^ string_of_stmt s
-                                | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" 
+                                | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n"
                                     ^ string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
                                  *)
                                 | _ -> "" :: list_so_far
@@ -84,18 +84,18 @@ let translate checked_program =
         in
 
     let function_production = ret_type :: function_name ::
-                formals :: "{" :: statements :: ["}"] 
-                in 
+                formals :: "{" :: statements :: ["}"]
+                in
         function_production
         in
 
     let handle_toplevel list_so_far current_toplevel =
         let current =
-                match current_toplevel with 
+                match current_toplevel with
                 | TopLevelFunction(fdecl) -> handle_fdecl fdecl
                 | TopLevelVar(v) -> []
                 | TopLevelEntity(e) -> []
-        in current @ list_so_far 
+        in current @ list_so_far
         in
 
     let string_tokens = List.fold_left handle_toplevel [] checked_program
