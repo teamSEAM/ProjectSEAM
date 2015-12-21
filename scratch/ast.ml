@@ -110,9 +110,11 @@ let rec string_of_stmt = function
 
 let string_of_vdecl (t, id) = string_of_acting_type t ^ " " ^ id ^ ";\n"
 
+let string_of_formal (t, id) = string_of_acting_type t ^ " " ^ id
+
 let string_of_fdecl fdecl =
-  fdecl.fname ^ "(" ^
-    String.concat ", " (List.map string_of_vdecl fdecl.formals) ^ ")\n{\n" ^
+  string_of_ret_type fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
+    String.concat ", " (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
     String.concat "" (List.map string_of_vdecl fdecl.locals) ^
     String.concat "" (List.map string_of_stmt fdecl.body) ^
     "}\n"
