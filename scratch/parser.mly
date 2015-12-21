@@ -53,16 +53,18 @@ fdecl_list:
  | fdecl_list fdecl { $2 :: $1 }
 
 fdecl:
- | ret_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { rtype = $1;
+ | atype ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { rtype = ActingType($1);
 	 fname = $2;
 	 formals = $4;
 	 locals = List.rev $7;
 	 body = List.rev $8; } }
-
-ret_type:
- | FUNC  { Void }
- | atype { ActingType($1) }
+ | FUNC ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { rtype = Void;
+	 fname = $2;
+	 formals = $4;
+	 locals = List.rev $7;
+	 body = List.rev $8; } }
 
 formals_opt:
  | /* nothing */ { [] }
