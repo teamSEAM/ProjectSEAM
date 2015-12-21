@@ -3,7 +3,7 @@
 /* %token ENTITY MAIN FUNCTION TEXTURE */
 %token STRING FLOAT INT INSTANCE
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE LSQUAREBRACE RSQUAREBRACE COMMA
+%token SEMI LPAREN RPAREN LBRACE RBRACE LSQUAREBRACE RSQUAREBRACE COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token IF ELSE
@@ -40,7 +40,7 @@ acting_type:
                 $1, Dynamic }
 
 ret_type:
-    | FUNCTION acting_type  FUNCTION { ActingType($2) }
+    | acting_type { ActingType($1) }
     | FUNCTION { Void }
 
 vdecl_list:
@@ -107,11 +107,11 @@ toplevel_element:
         | fdecl { TopLevelFunction($1) }
         | vdecl { TopLevelVar($1) }
 
-
-
 expr:
 | STRING_LITERAL                        { StrLit($1)	         }
 | INT_LITERAL                           { IntLit($1)             }
+| ID DOT ID LPAREN actuals_opt RPAREN   { Method($1, $3, List.rev $5) }
+| ID DOT ID                 { Field($1, $3) }
 | ID         			     	{ Id($1)                 }
 | expr PLUS   expr 			{ Binop($1, Add, $3) 	 }
 | expr MINUS  expr 			{ Binop($1, Sub, $3) 	 }
@@ -127,6 +127,15 @@ expr:
 | expr LEQ expr  		   	{ Binop($1, Leq, $3) 	 }
 | expr GT expr   		   	{ Binop($1, Greater, $3) }
 | expr GEQ expr  		   	{ Binop($1, Geq, $3)	 }
+
+actuals_opt:
+  /* nothing */ { [] }
+| actuals_list  { List.rev $1 }
+
+actuals_list:
+  expr            { [$1] }
+| actuals_list COMMA expr { $3 :: $1 }
+
 
 
 stmt:

@@ -11,7 +11,7 @@ rule token = parse
 | ']'      { RSQUAREBRACE }
 | ';'      { SEMI }
 | ','      { COMMA }
-
+| '.'      { DOT }
 
 (* a lot of operators *)
 | '+'      { PLUS }
