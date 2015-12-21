@@ -36,6 +36,8 @@ rule token = parse
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+| '['      { LBRACKET }
+| ']'      { RBRACKET }
 | ';'      { SEMI }
 | ','      { COMMA }
 | '.'      { DOT }
@@ -55,10 +57,17 @@ rule token = parse
 | "for"    { FOR }
 | "while"  { WHILE }
 | "return" { RETURN }
+| "bool"   { BOOL }
+| "int"    { INT }
+| "float"  { FLOAT }
+| "string" { STRING }
+| "instance" { INSTANCE }
 | "entity" { ENTITY }
-| regex_type as t  { TYPE }
-| regex_lit as lit { LITERAL(Ast.literal_of_string lit) }
-| regex_id  as id  { ID(id) }
+| lit_bool as b   { LIT_BOOL(bool_of_string b) }
+| lit_int as i    { LIT_INT(int_of_string i) }
+| lit_float as f  { LIT_FLOAT(float_of_string f) }
+| lit_string as s { LIT_STRING(s) }
+| regex_id as id  { ID(id) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
