@@ -46,11 +46,11 @@ edecl:
  | ENTITY ID LBRACE vdecl_list fdecl_list RBRACE
      { { ename = $2;
 	 fields = List.rev $4;
-	 methods = List.rev $5; } }
+	 methods = $5; } }
 
 fdecl_list:
  | /* nothing */    { [] }
- | fdecl_list fdecl { $2 :: $1 }
+ | fdecl fdecl_list { $1 :: $2 }
 
 fdecl:
  | atype ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
