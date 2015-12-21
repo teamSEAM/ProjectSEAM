@@ -7,8 +7,8 @@ type ret_type = Void | ActingType of acting_type
 type literal =
 | LitBool of bool
 | LitInt of int
-| LitString of string
 | LitFloat of float
+| LitString of string
 
 type identifier =
 | Name of string
@@ -19,7 +19,7 @@ type expr =
 | Id of identifier               (* variables and fields *)
 | Call of identifier * expr list (* functions and methods *)
 | Binop of expr * op * expr
-| Assign of string * expr
+| Assign of identifier * expr
 | Noexpr
 
 type stmt =
@@ -87,7 +87,7 @@ let rec string_of_expr = function
   | Id(id) -> string_of_identifier id
   | Binop(e1, o, e2) ->
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(id, e) -> string_of_identifier id ^ " = " ^ string_of_expr e
   | Call(id, args) ->
     string_of_identifier id ^
       "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
