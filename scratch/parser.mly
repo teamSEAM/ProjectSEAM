@@ -9,8 +9,8 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
-%token RETURN IF ELSE FOR WHILE INT
-%token ENTITY
+%token RETURN IF ELSE FOR WHILE
+%token TYPE ENTITY
 %token <Ast.literal> LITERAL
 %token <string> ID
 %token <Ast.ret_type> RTYPE
@@ -61,15 +61,25 @@ formals_opt:
  | formal_list   { List.rev $1 }
 
 formal_list:
- | TYPE ID                   { [$1] }
- | formal_list COMMA TYPE ID { $3 :: $1 }
+ | atype ID                   { [ ($1, $2) ] }
+ | formal_list COMMA atype ID { ($3, $4) :: $1 }
 
 vdecl_list:
  | /* nothing */    { [] }
  | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
- | INT ID SEMI { $2 }
+ | atype ID SEMI { $2 }
+
+atype:
+ | prim ARRAY { ActingType($1, $2) }
+
+prim:
+ | BOOL   { Bool }
+ | INT    { Int }
+ | FLOAT  { Float }
+ | STRING { String }
+ | INSTANCE ID { Instance($2) }
 
 stmt_list:
  | /* nothing */  { [] }
