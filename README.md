@@ -28,23 +28,69 @@ ProjectSEAM/
 * `src` our code!
   - `tests` tests (Edmund FTW)
 
-## Language Reference
+# Language Reference
 
-### Types
+## Identifiers
+```
+id        = (letter | '_') (letter | digit | '_')*
+letter    = lowercase | uppercase
+lowercase = ['a'-'z']
+uppercase = ['A'-'A']
+digit     = ['0'-'9']
+```
 
-* `int`
-* `string`
-* `float`
-* `bool`
-* `texture`
-* `entity`
+## Keywords
+```
+else
+entity
+for
+function
+if
+include
+return
+while
+```
 
-### Reserved keywords
+## Types
+```
+bool
+int
+string
+float
+instance
+```
 
-In addition to the type names listed above, the following identifiers
-are reserved keywords in SEAM:
+## Literals
 
-`if`, `else`, `while`, `for`, `include`, `true`, `false`
+### bool
+`lit_bool = 'true' | 'false'`
+
+### int
+```
+lit_int = ['-']? digit+
+digit   = ['0'-'9']
+```
+
+### string
+```
+lit_string  = '"' string_item* '"'
+string_item = [^'"']
+```
+
+### float
+```
+lit_float = ['-']? digit* '.'? digit+ exp?
+exp       = ['e' 'E'] ['+' '-']? digit+
+digit     = ['0'-'9']
+```
+
+## Operators
+`+`, `-`, `*`, `/`, `%`,
+`==`, `!=`, `>`, `<`, `>=`, `<=`,
+`&&`, `||`
+
+## Delimiters
+`(`, `)`, `[`, `]`, `,`, `:`, `.`
 
 Change Log
 11/8/15
