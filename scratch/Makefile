@@ -1,13 +1,12 @@
-OBJS = ast.cmo parser.cmo scanner.cmo interpret.cmo bytecode.cmo compile.cmo execute.cmo microc.cmo
+PROJECT=seam
+OBJS = ast.cmo parser.cmo scanner.cmo compile.cmo seam.cmo
 
 # Choose one
 YACC = ocamlyacc
 # YACC = menhir --explain
 
-PROJECT=microc
-
 TARFILES = Makefile testall.sh scanner.mll parser.mly \
-	ast.ml bytecode.ml interpret.ml compile.ml execute.ml $(PROJECT).ml \
+	ast.ml $(PROJECT).ml \
 	$(TESTS:%=tests/test-%.mc) \
 	$(TESTS:%=tests/test-%.out)
 
