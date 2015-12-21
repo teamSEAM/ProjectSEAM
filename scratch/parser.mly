@@ -6,14 +6,18 @@
   let trd3 (a,b,c) = c
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA DOT
+%token BOOL INT FLOAT STRING
+%token ENTITY INSTANCE FUNC
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
+%token SEMI COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
-%token TYPE ENTITY
-%token <Ast.literal> LITERAL
 %token <string> ID
-%token <Ast.ret_type> RTYPE
+%token <bool>   LIT_BOOL
+%token <int>    LIT_INT
+%token <float>  LIT_FLOAT
+%token <string> LIT_STRING
 %token EOF
 
 %nonassoc NOELSE
@@ -49,12 +53,16 @@ fdecl_list:
  | fdecl_list fdecl { $2 :: $1 }
 
 fdecl:
- | RTYPE ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+ | ret_type ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { rtype = $1;
 	 fname = $2;
 	 formals = $4;
 	 locals = List.rev $7;
 	 body = List.rev $8; } }
+
+ret_type:
+ | FUNC  { Void }
+ | atype { ActingType($1) }
 
 formals_opt:
  | /* nothing */ { [] }
@@ -69,17 +77,22 @@ vdecl_list:
  | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
- | atype ID SEMI { $2 }
+ | atype ID SEMI { $1, $2 }
 
 atype:
- | prim ARRAY { ActingType($1, $2) }
+ | primitive array_size { $1, $2 }
 
-prim:
+primitive:
  | BOOL   { Bool }
  | INT    { Int }
  | FLOAT  { Float }
  | STRING { String }
  | INSTANCE ID { Instance($2) }
+
+array_size:
+ | /* nothing */             { NotAnArray }
+ | LBRACKET RBRACKET         { Dynamic }
+ | LBRACKET LIT_INT RBRACKET { ArraySize($2) }
 
 stmt_list:
  | /* nothing */  { [] }
@@ -100,7 +113,7 @@ expr_opt:
  | expr          { $1 }
 
 expr:
- | LITERAL          { Literal($1) }
+ | literal          { Literal($1) }
  | id               { Id($1) }
  | expr PLUS   expr { Binop($1, Add,   $3) }
  | expr MINUS  expr { Binop($1, Sub,   $3) }
@@ -115,6 +128,12 @@ expr:
  | id ASSIGN expr   { Assign($1, $3) }
  | id LPAREN actuals_opt RPAREN { Call($1, $3) }
  | LPAREN expr RPAREN { $2 }
+
+literal:
+ | LIT_BOOL { LitBool($1) }
+ | LIT_INT { LitInt($1) }
+ | LIT_FLOAT { LitFloat($1) }
+ | LIT_STRING { LitString($1) }
 
 id:
  | ID        { Name($1) }
