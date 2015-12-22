@@ -119,15 +119,23 @@ let rec tr_formal (typ, name) =
 
 let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
 
+let is_stub fname =
+  try let _ = List.find (fun stub -> fname = stub)
+	Boilerplate.stubs_action in true
+  with Not_found -> false
+
 let tr_fdecl env fdecl =
   let env = add_scope env (fdecl.formals @ fdecl.locals) in
   let ename = env.scope.current_entity.ename in
   let mangled_fname = "__" ^ ename ^ "_" ^ fdecl.fname in
-  let first_arg = ename ^ " *this" in
+  let first_arg = if (is_stub fdecl.fname) then "void *in" else ename ^ " *this" in
   let rtype = fdecl.rtype in
   string_of_rtype rtype ^ " " ^ mangled_fname ^
     "(" ^ String.concat ", " (first_arg :: List.map string_of_formal fdecl.formals) ^
-    ") {\n" ^ String.concat "\n" (List.map tr_vdecl fdecl.locals) ^ "\n" ^
+    ") {\n" ^
+    (if (is_stub fdecl.fname)
+     then ename ^ " *this = (" ^ ename ^ " *)in;\n" else "") ^
+    String.concat "\n" (List.map tr_vdecl fdecl.locals) ^ "\n" ^
     String.concat "\n" (List.map (tr_stmt env) fdecl.body) ^ "\n}\n"
 
 let update_stub edecl fdecl =
