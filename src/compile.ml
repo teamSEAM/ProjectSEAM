@@ -81,6 +81,10 @@ let tr_identifier env id =
   (if (is_field env.scope (name_of_identifier id)) then
       "(this->" else "(") ^ string_of_identifier id ^ ")"
 
+let is_builtin name =
+  try let _ = List.find (fun s -> s = name) Lib.modules in true
+  with Not_found -> false
+
 let rec tr_expr env = function
   | Literal(lit) -> string_of_literal lit
   | Id(id) -> tr_identifier env id
@@ -89,8 +93,14 @@ let rec tr_expr env = function
   | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
   | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
   | Call(id, args) ->
-    string_of_identifier id ^
-      "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+    (match id with
+    | Name(n) -> tr_identifier env id ^ "(" ^
+      String.concat ", " (List.map (tr_expr env) args) ^ ")"
+    | Member(p, n) ->
+      if is_builtin p then "_" ^ p ^ "_" ^ n ^
+	"(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+      else tr_identifier env id ^
+	"(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")")
   | Noexpr -> ""
 
 let rec tr_stmt env = function

@@ -1,5 +1,5 @@
 PROJECT=seam
-OBJS = ast.cmo parser.cmo scanner.cmo boilerplate.cmo compile.cmo seam.cmo
+OBJS = ast.cmo parser.cmo scanner.cmo boilerplate.cmo lib.cmo compile.cmo seam.cmo
 
 # Choose one
 YACC = ocamlyacc
@@ -45,8 +45,10 @@ ast.cmo :
 ast.cmx :
 boilerplate.cmo :
 boilerplate.cmx :
-compile.cmo : boilerplate.cmo ast.cmo
-compile.cmx : boilerplate.cmx ast.cmx
+compile.cmo : lib.cmo boilerplate.cmo ast.cmo
+compile.cmx : lib.cmx boilerplate.cmx ast.cmx
+lib.cmo :
+lib.cmx :
 parser.cmo : ast.cmo parser.cmi
 parser.cmx : ast.cmx parser.cmi
 preprocessor.cmo :
