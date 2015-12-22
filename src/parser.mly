@@ -23,6 +23,7 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left DOT
 
 %start program
 %type <Ast.program> program
@@ -126,8 +127,8 @@ literal:
  | LIT_STRING { LitString($1) }
 
 id:
- | ID        { Name($1) }
- | id DOT ID { Member($1, $3) }
+ | ID          { Name($1) }
+ | expr DOT ID { Member(string_of_expr $1, $3) }
 
 actuals_opt:
  | /* nothing */ { [] }

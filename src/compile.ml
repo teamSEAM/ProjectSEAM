@@ -57,14 +57,14 @@ let rec tr_expr env = function
 
 let rec tr_stmt env = function
   | Block(stmts) ->
-    "{\n" ^ String.concat "" (List.map (tr_stmt env) stmts) ^ "}\n"
-  | Expr(expr) -> (tr_expr env) expr ^ ";\n";
-  | Return(expr) -> "return " ^ (tr_expr env) expr ^ ";\n";
+    "{\n" ^ String.concat "\n" (List.map (tr_stmt env) stmts) ^ "\n}"
+  | Expr(expr) -> (tr_expr env) expr ^ ";";
+  | Return(expr) -> "return " ^ (tr_expr env) expr ^ ";";
   | If(e, s, Block([])) ->
-    "if (" ^ (tr_expr env) e ^ ")\n" ^ (tr_stmt env) s
+    "if (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s
   | If(e, s1, s2) ->
-    "if (" ^ (tr_expr env) e ^ ")\n" ^ (tr_stmt env) s1 ^
-      "else\n" ^ (tr_stmt env) s2
+    "if (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s1 ^
+      " else " ^ (tr_stmt env) s2
   | For(e1, e2, e3, s) ->
     "for (" ^ (tr_expr env) e1  ^ " ; " ^ (tr_expr env) e2 ^ " ; " ^
       (tr_expr env) e3  ^ ") " ^ (tr_stmt env) s
@@ -91,7 +91,7 @@ let tr_edecl (env, output) edecl =
   let methods = List.map (tr_fdecl env) edecl.methods in
   let translated = "struct " ^ ename ^ " {\n" ^
     String.concat "\n" fields ^ "\n};\n\n" ^
-    String.concat "\n" methods ^ "\n" in
+    String.concat "\n" methods in
   (env, translated :: output)
 
 let translate entities =
@@ -102,28 +102,3 @@ let translate entities =
   } in
   let (env, translated) = (List.fold_left tr_edecl (empty_env, []) entities) in
   String.concat "\n" translated
-
-(* let tr_stmt stmt = string_of_stmt stmt *)
-
-(* let tr_vdecl (dtype, name) = *)
-
-
-(* let tr_fdecl ename fdecl = *)
-(*   let first_arg = "struct " ^ ename ^ "* self" *)
-(*   and mangled_fname = "__" ^ ename ^ " " ^ fdecl.fname *)
-(*   and formals = List.map string_of_formal fdecl.formals *)
-(*   and locals = List.map tr_vdecl fdecl.locals *)
-(*   in *)
-(*   string_of_rtype fdecl.rtype ^ *)
-(*     mangled_fname ^ *)
-(*     "(" ^ String.concat ", " (first_arg :: formals) ^ ") {\n" ^ *)
-
-(*     "}\n" *)
-
-(* let tr_edecl edecl = *)
-(*   "struct " ^ edecl.ename ^ " {\n" ^ *)
-(*     String.concat "\n" (List.map string_of_vdecl edecl.fields) ^ "\n}\n\n" ^ *)
-(*     String.concat "\n" (List.map (tr_fdecl edecl.name) edecl.methods) ^ "\n" *)
-
-(* let translate entities = *)
-(*   String.concat "\n" (List.map tr_edecl entities) *)

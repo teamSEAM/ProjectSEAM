@@ -11,7 +11,7 @@ type literal =
 
 type identifier =
 | Name of string
-| Member of identifier * string  (* entity id, member id *)
+| Member of string * string  (* entity id, member id *)
 
 type expr =
 | Literal of literal
@@ -76,7 +76,7 @@ let rec string_of_literal = function
 
 let rec string_of_identifier = function
   | Name(name) -> name
-  | Member(parent, name) -> string_of_identifier parent ^ "." ^ name
+  | Member(parent, name) -> parent ^ "." ^ name
 
 let rec string_of_expr = function
   | Literal(lit) -> string_of_literal lit
