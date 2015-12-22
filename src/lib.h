@@ -41,6 +41,7 @@ typedef struct keyboard_node {
 /* Core globals shared across all modules */
 static entity_node* ehead = NULL; //Entity list
 static alloc_node* ahead = NULL; //Allocation list
+static int quit_requested = 0;
 
 static SDL_Window* sdl_window = NULL; //SDL window
 static SDL_Surface* sdl_screen_surface = NULL;
@@ -84,4 +85,7 @@ void _unload_tex(texture* surface);
 /* 'keyboard' entity */
 
 void _keyboard_poll_events();
+int _keyboard_event_check(int type, int code);
 int _keyboard_keydown(int code);
+int _keyboard_keyup(int code);
+void _check_quit_requested();

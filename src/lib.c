@@ -259,18 +259,23 @@ void _keyboard_poll_events(){
 					khead = node;
 				}
 				break;
+//			case SDL_QUIT:
+//				quit_requested = 1;
+//				break;
 		}
 	}
 }
 
-//Check if a key (determined by its scan code) is down.
-int _keyboard_keydown(int code){
+void _check_quit_requested(){
 	_keyboard_poll_events();
+}
 
+//Check if a key (determined by its scan code) is down or up.
+int _keyboard_event_check(int type, int code){
 	keyboard_node* prev = NULL;
 	keyboard_node* curr = khead;
 	while(curr){
-		if(curr->key == code && curr->press_type == SDL_KEYDOWN){
+		if(curr->key == code && curr->press_type == code){
 			//Remove from list and stitch list back together
 			if(prev)
 				prev->next = curr->next;
@@ -284,4 +289,15 @@ int _keyboard_keydown(int code){
 	}
 
 	return 0;
+
+}
+
+int _keyboard_keydown(int code){
+	_keyboard_poll_events();
+	return _keyboard_event_check(SDL_KEYDOWN, code);
+}
+
+int _keyboard_keyup(int code){
+	_keyboard_poll_events();
+	return _keyboard_event_check(SDL_KEYUP, code);
 }
