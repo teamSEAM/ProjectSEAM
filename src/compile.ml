@@ -65,7 +65,7 @@ let rec is_field scope name =
   match scope.parent with
   | None ->
     if (in_scope scope name) then true
-    else raise (UndeclaredIdentifier name)
+    else true (* raise (UndeclaredIdentifier name) *)
   | Some(parent) ->
     if (in_scope scope name) then false
     else is_field parent name
@@ -81,7 +81,7 @@ let pop_scope env =
 
 let tr_identifier env id =
   (if (is_field env.scope (name_of_identifier id)) then
-      "this->" else "") ^ string_of_identifier id
+      "(this->" else "(") ^ parent_of_identifier id ^ ")" ^ name_of_identifier id 
 
 let is_builtin name =
   try let _ = List.find (fun s -> s = name) Lib.modules in true

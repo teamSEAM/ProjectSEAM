@@ -85,6 +85,10 @@ let name_of_identifier = function
   | Name(name) -> name
   | Member(parent, name) -> name
 
+let parent_of_identifier = function
+  | Name(name) -> ""
+  | Member(parent, name) -> parent
+
 let rec string_of_expr = function
   | Literal(lit) -> string_of_literal lit
   | Id(id) -> string_of_identifier id
