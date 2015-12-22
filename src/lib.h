@@ -30,6 +30,14 @@ typedef struct texture {
 	int height;
 } texture;
 
+struct keyboard_node;
+typedef struct keyboard_node {
+	int key;
+	int press_type;
+
+	struct keyboard_node* next;
+} keyboard_node;
+
 /* Core globals shared across all modules */
 static entity_node* ehead = NULL; //Entity list
 static alloc_node* ahead = NULL; //Allocation list
@@ -37,6 +45,7 @@ static alloc_node* ahead = NULL; //Allocation list
 static SDL_Window* sdl_window = NULL; //SDL window
 static SDL_Surface* sdl_screen_surface = NULL;
 static int window_inited = 0; //Have we created an SDL window?
+static keyboard_node* khead = NULL;
 
 /* Memory management */
 void _make_node(void* ptr);
@@ -74,4 +83,5 @@ void _unload_tex(texture* surface);
 
 /* 'keyboard' entity */
 
+void _keyboard_poll_events();
 int _keyboard_keydown(int code);

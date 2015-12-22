@@ -1,6 +1,6 @@
 #Test Basic For Loop#
 entity World:
-	func main():
+	func start():
 		int x
 		x=0
 		while(x<=1):

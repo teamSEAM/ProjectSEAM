@@ -1,0 +1,10 @@
+entity World:
+	int var0
+	string var1
+	func start():
+		var0=0
+		var1="HELLO"
+	func step():
+		screen.out(var1)
+		var0=var0+1
+		var1=convert.int_to_string(var0)

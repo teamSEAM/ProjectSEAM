@@ -47,7 +47,7 @@ int main(int argc, char** argv){
 		int wait_duration = TICK_DURATION - time_diff;
 
 		if(wait_duration < 0){
-			fprintf(stderr, "Simulation slower than 30FPS by %d ms/frame\n",
+			fprintf(stderr, "[warn] Simulation slower than 60FPS by %d ms/frame\n",
 				-wait_duration);
 		} else {
 			_screen_delay(wait_duration);

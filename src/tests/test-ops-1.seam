@@ -1,6 +1,6 @@
 #Test Basic Ops#
 entity World:
-	func Main():
+	func start():
 		if((1+2)==3):
 			screen.out("Addition PASS")
 		else:

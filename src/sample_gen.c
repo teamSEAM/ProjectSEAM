@@ -54,13 +54,19 @@ void __World_spawn(){
 	
 	_screen_out("--- TEST SCREEN/KEYBOARD BUILT-IN ---");
 	_screen_init(640, 640);
-	_screen_set_background(0xff00ffff);
+	_screen_set_background(0xff00ffff); //Light blue color
 	_screen_delay(1000);
 
-	if(_keyboard_keydown(SDLK_LEFT)){
+	if(_keyboard_keydown(1073741904)){ //SDLK_LEFT
 		_screen_out("Left is down!");
 	} else {
 		_screen_out("Left is up!");
+	}
+
+	if(_keyboard_keydown(SDLK_RIGHT)){
+		_screen_out("Right is down!");
+	} else {
+		_screen_out("Right is up!");
 	}
 
 	texture* tex = _load_tex("kitty.bmp");
