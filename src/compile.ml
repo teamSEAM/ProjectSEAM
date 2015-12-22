@@ -215,4 +215,4 @@ let translate entities =
     scope = { parent = None; current_entity = empty_edecl; variables = [] };
   } in
   let (env, translated) = (List.fold_left tr_edecl (empty_env, []) entities) in
-  String.concat "\n" translated
+  String.concat "\n" (List.rev translated)
