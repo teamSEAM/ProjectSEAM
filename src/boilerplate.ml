@@ -19,3 +19,24 @@ let gen_spawn ename =
 
      " ^ ename ^ "_start(data);
 }"
+
+let gen_destroy ename =
+  "void " ^ ename ^ "_destroy(" ^ ename ^ "* this){\n     " ^
+    ename ^ "_stop(this);
+
+    entity_node* curr = ehead;
+    entity_node* prev = NULL;
+    while(curr) {
+        if(curr->data == this) break;
+        prev = curr;
+        curr = curr->next;
+    }
+
+    if(prev)
+        prev->next = curr->next;
+    else
+    ehead = curr->next;
+
+    free(this);
+    free(curr);
+}"

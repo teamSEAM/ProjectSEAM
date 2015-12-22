@@ -175,7 +175,8 @@ let tr_edecl (env, output) edecl =
   let translated = "typedef struct " ^ ename ^ " {\n" ^
     String.concat "\n" fields ^ "\n} " ^ ename ^";\n" ^
     String.concat "\n" methods ^ "\n" ^
-    (gen_spawn ename) in
+    (gen_spawn ename) ^ "\n" ^
+    (gen_destroy ename) in
   (env, translated :: output)
 
 let translate entities =
