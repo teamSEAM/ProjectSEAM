@@ -48,6 +48,8 @@ fi
 echo "#include \"gen.h\"" | cat - gen.c > temp && mv temp gen.c
 echo "#include \"lib.h\"" | cat - gen.c > temp && mv temp gen.c
 
+echo "void program_ep() { World_spawn(); }" >> gen.c
+
 gcc -g -c lib.c -o lib.o
 # This is their code
 gcc -g -c gen.c -o gen.o
