@@ -29,7 +29,7 @@ Types
 ***********************************
 1 Instantiate int, float, bool, string and assign
 2 See if assigned bool will use if statement to assign 
-
+3 Float to int and int to float, and string join and all of these get printed out
 Function
 ***********************************
 1 Do multiple entities and print statements
