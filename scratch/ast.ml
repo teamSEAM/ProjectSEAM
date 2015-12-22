@@ -1,8 +1,8 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 type primitive = Bool | Int | String | Float | Instance of string
 type array_size = NotAnArray | Dynamic | ArraySize of int
-type acting_type = primitive * array_size
-type ret_type = Void | ActingType of acting_type
+type atype = primitive * array_size
+type ret_type = Void | ActingType of atype
 
 type literal =
 | LitBool of bool
@@ -31,7 +31,7 @@ type stmt =
 | For of expr * expr * expr * stmt
 | While of expr * stmt
 
-type vdecl = acting_type * string
+type vdecl = atype * string
 
 type fdecl = {
   rtype : ret_type;
@@ -66,12 +66,12 @@ let string_of_array_size = function
   | Dynamic -> "[]"
   | ArraySize(size) -> "[" ^ string_of_int size ^ "]"
 
-let string_of_acting_type (t, s) =
+let string_of_atype (t, s) =
   string_of_primitive t ^ string_of_array_size s
 
 let string_of_ret_type = function
   | Void -> "function"
-  | ActingType(at) -> string_of_acting_type at
+  | ActingType(at) -> string_of_atype at
 
 let string_of_literal = function
   | LitBool(b) -> string_of_bool b
@@ -110,9 +110,9 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_vdecl (t, id) = string_of_acting_type t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id) = string_of_atype t ^ " " ^ id ^ ";\n"
 
-let string_of_formal (t, id) = string_of_acting_type t ^ " " ^ id
+let string_of_formal (t, id) = string_of_atype t ^ " " ^ id
 
 let string_of_fdecl fdecl =
   string_of_ret_type fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
