@@ -261,16 +261,15 @@ void _keyboard_poll_events(){
 
 				if(khead){
 					keyboard_node* curr = khead;
-
 					while(curr->next) curr = curr->next;
 					curr->next = node;
 				} else {
 					khead = node;
 				}
 				break;
-//			case SDL_QUIT:
-//				quit_requested = 1;
-//				break;
+			case SDL_QUIT:
+				quit_requested = 1;
+				break;
 		}
 	}
 }
@@ -284,7 +283,7 @@ int _keyboard_event_check(int type, int code){
 	keyboard_node* prev = NULL;
 	keyboard_node* curr = khead;
 	while(curr){
-		if(curr->key == code && curr->press_type == code){
+		if(curr->key == code && curr->press_type == type){
 			//Remove from list and stitch list back together
 			if(prev)
 				prev->next = curr->next;

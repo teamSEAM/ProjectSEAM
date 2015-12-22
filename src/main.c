@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 	alloc_node* alloc_head = NULL;
 
 	//Create the required World object that populates entity list
-	World_spawn(); //Guanteed to exist
+	program_ep(); //Guanteed to exist
 
 	//Main program loop
 	int running = 1;
@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 		ticks = SDL_GetTicks();
 
 		_check_quit_requested();
-		if(quit_requested) break;
+		if(quit_requested) running = 0;
 	}
 
 	//Exit SDL
