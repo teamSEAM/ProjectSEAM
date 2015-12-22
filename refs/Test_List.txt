@@ -1,12 +1,20 @@
 Hello World
 1 Sees if you can just print a statement
-IF
+
+OPS
+***********************************
+1 Test + - / *
+2 Test Order of Operation
+
+IF STATEMENT
+***********************************
 1 BASIC HELLO WORLD USING IF
 2 NESTED IFS
 3 OPERATION TEST
 4 No Else
 
-Entities 
+ENTITIES
+***********************************
 1 See if program compiles with entities
 2 Runs another entities' command
 3 No world function
@@ -14,21 +22,28 @@ Entities
 5 Use run and convert int to string and output
 6 Hello Render
 7 Incrementing the same variable in steps and render and printing (See how render does in )
+8 Basic Requirement to even do games
+9 Change members in entity using a function
 
 Types
+***********************************
 1 Instantiate int, float, bool, string and assign
-
-While
-1 See if basic while works
-
-OPS
-1 Test + - / *
-2 Test Order of precedence
+2 See if assigned bool will use if statement to assign 
 
 Function
+***********************************
 1 Do multiple entities and print statements
 2 Tests if you can call another function from the same World Entity
 
+Preprocessor
+***********************************
+1 Test Comments, T
+2 How : and # is treated in a string creation
+
+While
+***********************************
+1 See if basic while works
+2 Should fail, semantic error
 
 Other entities with main
 functions of same name

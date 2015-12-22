@@ -2,7 +2,7 @@ open Ast
 open Boilerplate
 
 exception UndeclaredEntity of string
-exception UndeclaredVariable of string
+exception UndeclaredIdentifier of string
 
 type symbol_table = {
   parent : symbol_table option;
@@ -35,7 +35,7 @@ let rec find_variable (scope : symbol_table) name =
   with Not_found ->
     match scope.parent with
       Some(parent) -> find_variable parent name
-    | _ -> raise (UndeclaredVariable name)
+    | _ -> raise (UndeclaredIdentifier name)
 
 let add_edecl env edecl = {
   entities = edecl :: env.entities;
@@ -63,7 +63,9 @@ let in_scope scope name =
 
 let rec is_field scope name =
   match scope.parent with
-  | None -> true
+  | None ->
+    if (in_scope scope name) then true
+    else raise (UndeclaredIdentifier name)
   | Some(parent) ->
     if (in_scope scope name) then false
     else is_field parent name
@@ -79,7 +81,7 @@ let pop_scope env =
 
 let tr_identifier env id =
   (if (is_field env.scope (name_of_identifier id)) then
-      "(this->" else "(") ^ string_of_identifier id ^ ")"
+      "this->" else "") ^ string_of_identifier id
 
 let is_builtin name =
   try let _ = List.find (fun s -> s = name) Lib.modules in true
@@ -92,10 +94,13 @@ let rec tr_expr env = function
     (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
   | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
   | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
+  | Spawn(ent) -> ent ^ "_spawn()"
   | Call(id, args) ->
     (match id with
-    | Name(n) -> tr_identifier env id ^ "(" ^
-      String.concat ", " (List.map (tr_expr env) args) ^ ")"
+    | Name(n) -> if (n = "load") || (n = "unload")
+      then n ^ "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+      else tr_identifier env id ^ "(" ^
+	String.concat ", " (List.map (tr_expr env) args) ^ ")"
     | Member(p, n) ->
       if is_builtin p then "_" ^ p ^ "_" ^ n ^
 	"(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
@@ -117,6 +122,11 @@ let rec tr_stmt env = function
     "for (" ^ (tr_expr env) e1  ^ " ; " ^ (tr_expr env) e2 ^ " ; " ^
       (tr_expr env) e3  ^ ") " ^ (tr_stmt env) s
   | While(e, s) -> "while (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s
+  | Kill(id) ->
+    let iname = name_of_identifier id in
+    let (dtype, _) = find_variable env.scope iname in
+    let ename = string_of_dtype dtype in
+    ename ^ "_kill(" ^ (tr_identifier env id) ^ ")"
 
 let rec tr_formal (typ, name) =
   match typ with
@@ -124,8 +134,9 @@ let rec tr_formal (typ, name) =
   | Int -> "int " ^ name
   | String -> "char *" ^ name
   | Float -> "float " ^ name
-  | Instance(s) -> s ^ " " ^ name
+  | Instance(s) -> s ^ " *" ^ name
   | Array(t, size) -> tr_formal(t, name) ^ "[" ^ string_of_int size ^ "]"
+  | Texture -> "texture *" ^ name
 
 let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
 

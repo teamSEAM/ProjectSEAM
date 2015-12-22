@@ -1,0 +1,25 @@
+# Requires WHILE to work
+Lots of things going on
+Spawn Entity (brings in things into the step function so will be printing)
+Decrement function that will change the x that is in a higher scope
+Return x after decrementing
+#
+entity Ent_1:
+	int x
+	func start():
+		screen.out("Hi I am 1!!")
+		x=5
+	func step():
+		screen.out("One")
+	func decrement():
+		x=x-1
+entity World:y
+	int count
+	<Ent_1> one
+	func start():
+		one = spawn Ent_1
+	func step():
+		count=(one.decrement()).x
+		if(count<0):
+			kill one
+

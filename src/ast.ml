@@ -1,5 +1,5 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
-type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
+type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int | Texture
 type rtype = Void | ActingType of dtype
 
 type literal =
@@ -18,6 +18,7 @@ type expr =
 | Id of identifier               (* variables and fields *)
 | Call of identifier * expr list (* functions and methods *)
 | Binop of expr * op * expr
+| Spawn of string
 | Assign of identifier * expr
 | Access of identifier * expr    (* array access *)
 | Noexpr
@@ -29,6 +30,7 @@ type stmt =
 | If of expr * stmt * stmt
 | For of expr * expr * expr * stmt
 | While of expr * stmt
+| Kill of identifier
 
 type vdecl = dtype * string
 
@@ -60,7 +62,8 @@ let rec string_of_dtype = function
   | Float -> "float"
   | Array(t, size) ->
     string_of_dtype t ^ "[" ^ string_of_int size ^ "]"
-  | Instance(name) -> "instance(" ^ name ^ ")"
+  | Instance(name) -> name
+  | Texture -> "texture *"
 
 let string_of_rtype = function
   | Void -> "void"
@@ -89,6 +92,7 @@ let rec string_of_expr = function
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Assign(id, e) -> string_of_identifier id ^ " = " ^ string_of_expr e
   | Access(id, e) -> string_of_identifier id ^ "[" ^ string_of_expr e ^ "]"
+  | Spawn(ent) -> "spawn " ^ ent
   | Call(id, args) ->
     string_of_identifier id ^
       "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
@@ -98,6 +102,7 @@ let rec string_of_stmt = function
   | Block(stmts) ->
     "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
+  | Kill(id) -> "kill " ^ string_of_identifier id ^ ";\n";
   | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
   | If(e, s, Block([])) ->
     "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s

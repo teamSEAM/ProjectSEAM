@@ -3,12 +3,13 @@
 %}
 
 %token BOOL INT FLOAT STRING
-%token ENTITY FUNC
+%token ENTITY FUNC TEXTURE
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 %token SEMI COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
+%token SPAWN KILL
 %token <string> ID
 %token <bool>   LIT_BOOL
 %token <int>    LIT_INT
@@ -23,6 +24,8 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%right SPAWN
+%right KILL
 %left DOT
 
 %start program
@@ -83,6 +86,7 @@ dtype:
  | STRING { String }
  | LT ID GT { Instance($2) }
  | dtype LBRACKET LIT_INT RBRACKET { Array($1, $3) }
+ | TEXTURE { Texture }
 
 stmt_list:
  | /* nothing */  { [] }
@@ -97,6 +101,7 @@ stmt:
  | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
  | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+ | KILL ID SEMI { Kill(Name($2)) }
 
 expr_opt:
  | /* nothing */ { Noexpr }
@@ -115,6 +120,7 @@ expr:
  | expr LEQ    expr { Binop($1, Leq,   $3) }
  | expr GT     expr { Binop($1, Greater,  $3) }
  | expr GEQ    expr { Binop($1, Geq,   $3) }
+ | SPAWN ID         { Spawn($2) }
  | id ASSIGN expr   { Assign($1, $3) }
  | id LBRACKET expr RBRACKET    { Access($1, $3) }
  | id LPAREN actuals_opt RPAREN { Call($1, $3) }

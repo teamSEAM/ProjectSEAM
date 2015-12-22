@@ -1,0 +1,8 @@
+# THIS SHOULD THROW AN ERROR #
+entity World:
+	func start():
+		int i
+		i=5
+		while(i>0):
+		i=i-1 #SHOULD FAIL HERE#
+
