@@ -47,7 +47,7 @@ type edecl = {
   methods : fdecl list;
 }
 
-type program = vdecl list * edecl list * fdecl list
+type program = edecl list
 
 let string_of_op = function
   | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
@@ -127,7 +127,5 @@ let string_of_edecl edecl =
     String.concat "" (List.map string_of_fdecl edecl.methods) ^
     "}\n"
 
-let string_of_program (vars, ents, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-    String.concat "\n" (List.map string_of_edecl ents) ^ "\n" ^
-    String.concat "\n" (List.map string_of_fdecl funcs)
+let string_of_program entities =
+  String.concat "\n" (List.map string_of_edecl entities)

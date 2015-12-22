@@ -34,13 +34,11 @@
 %%
 
 program:
- | decls EOF { List.rev (fst3 $1), List.rev (snd3 $1), List.rev (trd3 $1) }
+ | edecls EOF { List.rev $1 }
 
-decls:
- | /* nothing */ { [], [], [] }
- | decls vdecl { ($2 :: fst3 $1), snd3 $1 , trd3 $1 }
- | decls edecl { fst3 $1, ($2 :: snd3 $1), trd3 $1 }
- | decls fdecl { fst3 $1, snd3 $1, ($2 :: trd3 $1) }
+edecls:
+ | /* nothing */ { [] }
+ | edecls edecl { $2 :: $1 }
 
 edecl:
  | ENTITY ID LBRACE vdecl_list fdecl_list RBRACE
