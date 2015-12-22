@@ -1,0 +1,5 @@
+#WHAT IS A COLON#
+entity World:
+	function start():
+		screen.out("comment: test.")
+		screen.out("#DOES THIS PRINT?# MAYBE")

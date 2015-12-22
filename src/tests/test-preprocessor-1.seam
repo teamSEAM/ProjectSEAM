@@ -1,5 +1,5 @@
 #this is a comment#
 entity World:
 	function                #	this is a comment with a bit of whitespace too       # start():
-	screen.out("comment test.")
+		screen.out("comment test.")
 

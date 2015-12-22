@@ -7,7 +7,6 @@ src/_build/*
 *.cmi
 *.seami
 *.o
-*.out
 *.log
 src/gen.c
 src/out

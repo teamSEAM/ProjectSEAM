@@ -1,0 +1,23 @@
+# Assign Values into Entity#
+entity toChange:
+	int x
+	int y
+
+	func getArea():
+		int area
+		area=x*y
+		return area
+	func setXY(int a, int b):
+		x=a
+		y=b
+
+entity World:
+	<toChange> box
+	int toPrint
+	func start():
+		box=spawn toChange
+		box.setXY(1,1)
+		toPrint=box.getArea()
+		system.out(int_to_str(toPrint))
+
+
