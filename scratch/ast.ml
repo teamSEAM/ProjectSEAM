@@ -1,6 +1,6 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
-type ret_type = Void | ActingType of dtype
+type rtype = Void | ActingType of dtype
 
 type literal =
 | LitBool of bool
@@ -33,7 +33,7 @@ type stmt =
 type vdecl = dtype * string
 
 type fdecl = {
-  rtype : ret_type;
+  rtype : rtype;
   fname : string;
   formals : vdecl list;
   locals : vdecl list;
@@ -62,7 +62,7 @@ let rec string_of_dtype = function
     string_of_dtype t ^ "[" ^ string_of_int size ^ "]"
   | Instance(name) -> "instance(" ^ name ^ ")"
 
-let string_of_ret_type = function
+let string_of_rtype = function
   | Void -> "function"
   | ActingType(at) -> string_of_dtype at
 
@@ -110,7 +110,7 @@ let string_of_vdecl (t, id) = string_of_dtype t ^ " " ^ id ^ ";\n"
 let string_of_formal (t, id) = string_of_dtype t ^ " " ^ id
 
 let string_of_fdecl fdecl =
-  string_of_ret_type fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
+  string_of_rtype fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
     String.concat ", " (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
     String.concat "" (List.map string_of_vdecl fdecl.locals) ^
     String.concat "" (List.map string_of_stmt fdecl.body) ^
