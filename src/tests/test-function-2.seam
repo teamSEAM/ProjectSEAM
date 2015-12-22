@@ -1,6 +1,6 @@
 #Tests function calls within a entity#
 entity World:
-	func main():
+	func start():
 		int x
 		x=add(1,2)
 		if(x==3):

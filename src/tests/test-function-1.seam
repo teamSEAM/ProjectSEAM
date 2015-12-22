@@ -5,6 +5,6 @@ entity World:
 		screen.out("Do 1")
 	func do2():
 		screen.out("Do 2")
-	func main():
+	func start():
 		do1()
 		do2()

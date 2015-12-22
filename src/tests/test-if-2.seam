@@ -1,6 +1,6 @@
 #TEST NESTED IFS#
 entity World:
-	func main():
+	func start():
 		if(1==1):
 			if(2==2):
 				screen.out("YES NESTED")
