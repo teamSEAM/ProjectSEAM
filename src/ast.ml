@@ -1,5 +1,5 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
-type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
+type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int | Texture
 type rtype = Void | ActingType of dtype
 
 type literal =
@@ -63,6 +63,7 @@ let rec string_of_dtype = function
   | Array(t, size) ->
     string_of_dtype t ^ "[" ^ string_of_int size ^ "]"
   | Instance(name) -> name
+  | Texture -> "texture *"
 
 let string_of_rtype = function
   | Void -> "void"

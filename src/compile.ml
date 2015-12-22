@@ -134,6 +134,7 @@ let rec tr_formal (typ, name) =
   | Float -> "float " ^ name
   | Instance(s) -> s ^ " *" ^ name
   | Array(t, size) -> tr_formal(t, name) ^ "[" ^ string_of_int size ^ "]"
+  | Texture -> "texture *" ^ name
 
 let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
 

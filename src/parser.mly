@@ -3,7 +3,7 @@
 %}
 
 %token BOOL INT FLOAT STRING
-%token ENTITY FUNC
+%token ENTITY FUNC TEXTURE
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 %token SEMI COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
@@ -86,6 +86,7 @@ dtype:
  | STRING { String }
  | LT ID GT { Instance($2) }
  | dtype LBRACKET LIT_INT RBRACKET { Array($1, $3) }
+ | TEXTURE { Texture }
 
 stmt_list:
  | /* nothing */  { [] }
