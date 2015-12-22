@@ -81,7 +81,10 @@ let pop_scope env =
 
 let tr_identifier env id =
   (if (is_field env.scope (name_of_identifier id)) then
-      "(this->" else "(") ^ parent_of_identifier id ^ ")" ^ name_of_identifier id 
+      "(this->" else "(") ^
+    (match parent_of_identifier id with
+	| "" ->  name_of_identifier id ^ ")"
+	| parent_of_identifier id ^ ")." ^ name_of_identifier id)
 
 let is_builtin name =
   try let _ = List.find (fun s -> s = name) Lib.modules in true
