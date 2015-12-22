@@ -1,4 +1,5 @@
 open Ast
+open Boilerplate
 
 exception UndeclaredEntity of string
 exception UndeclaredVariable of string
@@ -173,7 +174,8 @@ let tr_edecl (env, output) edecl =
   let methods = List.map (tr_fdecl env) edecl.methods in
   let translated = "typedef struct " ^ ename ^ " {\n" ^
     String.concat "\n" fields ^ "\n} " ^ ename ^";\n" ^
-    String.concat "\n" methods in
+    String.concat "\n" methods ^ "\n" ^
+    (gen_spawn ename) in
   (env, translated :: output)
 
 let translate entities =
