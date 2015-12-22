@@ -1,0 +1,4 @@
+Entity World:
+	func Main:
+		print("Hello World")
+
