@@ -53,7 +53,7 @@ let string_of_op = function
   | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
   | Equal -> "==" | Neq -> "!="
   | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">="
-  | Spawn -> "spawn" | Kill -> "kill"
+  | Spawn -> "spawn" | Kill -> "destroy"
 
 let rec string_of_dtype = function
   | Bool -> "bool"

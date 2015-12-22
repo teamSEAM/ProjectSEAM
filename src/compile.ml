@@ -91,7 +91,12 @@ let rec tr_expr env = function
   | Binop(e1, o, e2) ->
     (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
   | Unop(o, e) ->
-    string_of_op o ^ " " ^ (tr_expr env) e
+    let ename = (tr_expr env) e in
+    ename ^ "_" ^ string_of_op o ^
+      (match o with
+      | Spawn -> "()"
+      | Kill -> "(" ^ ename ^ ")"
+      | _ -> raise (Failure "Parsed binary operator as unary") )
   | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
   | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
   | Call(id, args) ->
