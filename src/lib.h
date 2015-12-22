@@ -9,10 +9,10 @@ struct entity_node;
 typedef struct entity_node {
 	//Pointers kept to step and render functions so they can be called
 	//by main
-	void* step;
-	void* render;
+	void (*step)(void* in); //'in' cast to appropriate type from within
+	void (*render)(void* in);
 
-	void* data;
+	void* data; 
 	struct entity_node* next;
 } entity_node;
 

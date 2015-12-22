@@ -4,6 +4,6 @@
 #include "lib.h"
 
 /* gen.h is a simple header to allow main to include gen.o. */
-void program_ep();
+void __World_spawn();
 
 #endif

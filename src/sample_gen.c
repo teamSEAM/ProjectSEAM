@@ -1,8 +1,8 @@
 #include "lib.h"
 #include "gen.h"
 
-/* A sample gen.c. */
-void program_ep(){
+/* A sample gen.c for testing. */
+void __World_spawn(){
 	_screen_out("--- TEST GC ---");
 	
 	char* buf = malloc(sizeof(char) * 100);

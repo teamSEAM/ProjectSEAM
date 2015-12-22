@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 	alloc_node* alloc_head = NULL;
 
 	//Create the required World object that populates entity list
-	// __World_start(); //Guanteed to exist
+	__World_spawn(); //Guanteed to exist
 
 	//Main program loop
 	int running = 1;
@@ -25,14 +25,15 @@ int main(int argc, char** argv){
 		if(!curr) running = 0;
 		
 		while(curr){
-			//(curr->step)(curr->data); //Pass in members struct
+			curr->step(curr->data); 
 			curr = curr->next;
 		}
 
 		//Call render functions
 		curr = ehead;
 		while(curr){
-			//curr->render(curr->data);
+			curr->render(curr->data);
+			curr = curr->next;
 		}
 
 		//Collect garbage
@@ -53,9 +54,6 @@ int main(int argc, char** argv){
 		}
 		ticks = SDL_GetTicks();
 	}
-
-	//TESTING ONLY: Call program_ep
-	program_ep();
 
 	//Exit SDL
 	SDL_Quit();
