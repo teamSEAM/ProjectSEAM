@@ -98,7 +98,7 @@ let rec tr_expr env = function
   | Call(id, args) ->
     (match id with
     | Name(n) -> if (n = "load") || (n = "unload")
-      then n ^ "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+      then "_" ^ n ^ "_tex(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
       else tr_identifier env id ^ "(" ^
 	String.concat ", " (List.map (tr_expr env) args) ^ ")"
     | Member(p, n) ->
