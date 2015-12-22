@@ -97,8 +97,10 @@ let rec tr_expr env = function
   | Spawn(ent) -> ent ^ "_spawn()"
   | Call(id, args) ->
     (match id with
-    | Name(n) -> tr_identifier env id ^ "(" ^
-      String.concat ", " (List.map (tr_expr env) args) ^ ")"
+    | Name(n) -> if (n = "load") || (n = "unload")
+      then n ^ "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+      else tr_identifier env id ^ "(" ^
+	String.concat ", " (List.map (tr_expr env) args) ^ ")"
     | Member(p, n) ->
       if is_builtin p then "_" ^ p ^ "_" ^ n ^
 	"(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
@@ -124,7 +126,7 @@ let rec tr_stmt env = function
     let iname = name_of_identifier id in
     let (dtype, _) = find_variable env.scope iname in
     let ename = string_of_dtype dtype in
-    ename ^ "_kill(this->" ^ iname ^ ")"
+    ename ^ "_kill(" ^ (tr_identifier env id) ^ ")"
 
 let rec tr_formal (typ, name) =
   match typ with
