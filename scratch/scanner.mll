@@ -61,7 +61,6 @@ rule token = parse
 | "int"    { INT }
 | "float"  { FLOAT }
 | "string" { STRING }
-| "instance" { INSTANCE }
 | "entity" { ENTITY }
 | "func"   { FUNC }
 | lit_bool as b   { LIT_BOOL(bool_of_string b) }

@@ -1,13 +1,9 @@
 %{
   open Ast
-
-  let fst3 (a,b,c) = a
-  let snd3 (a,b,c) = b
-  let trd3 (a,b,c) = c
 %}
 
 %token BOOL INT FLOAT STRING
-%token ENTITY INSTANCE FUNC
+%token ENTITY FUNC
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 %token SEMI COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
@@ -84,7 +80,7 @@ dtype:
  | INT    { Int }
  | FLOAT  { Float }
  | STRING { String }
- | INSTANCE ID { Instance($2) }
+ | LT ID GT { Instance($2) }
  | dtype LBRACKET LIT_INT RBRACKET { Array($1, $3) }
 
 stmt_list:
