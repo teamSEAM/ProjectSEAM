@@ -1,0 +1,4 @@
+entity World:
+	func start():
+		if (true == true):
+			i = i + 1	

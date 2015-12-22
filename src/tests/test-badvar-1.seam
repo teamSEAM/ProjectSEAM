@@ -1,0 +1,7 @@
+entity World:
+	func start():
+		int i
+		int j
+		i
+		j
+		k

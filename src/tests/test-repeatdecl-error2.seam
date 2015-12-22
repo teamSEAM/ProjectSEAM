@@ -1,0 +1,10 @@
+entity World:
+	func start():
+		screen.out("Entities Exist")
+	func start():
+		screen.out("Entities Exist")
+
+entity World:
+	func two():
+		screen.out("NOT GONNA PRINT")
+
