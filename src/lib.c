@@ -54,7 +54,7 @@ void _gc(){
 	//Free up list elements
 	while(curr != NULL){
 		if(curr->ref_count == 0){
-			//printf("Freeing a node...\n");
+			//printf("Freeing a node's pointer...\n");
 			free(curr->ptr);
 		}
 
@@ -77,8 +77,8 @@ void _gc(){
 	//			printf("Moved head forward\n");
 			}
 
-			curr = NULL;
 			free(curr);
+			curr = NULL;
 		}
 
 		if(curr != NULL){
@@ -187,19 +187,50 @@ void _screen_delay(int milliseconds){
 
 //Set the background of the screen
 void _screen_set_background(int color){	
+	SDL_FillRect(sdl_screen_surface, NULL, color);
+	SDL_UpdateWindowSurface(sdl_window);
 }
 
 //Draw a texture to the screen
-void _screen_draw(void* tex, int x, int y){
+void _screen_draw(texture* tex, int x, int y){
+	SDL_Rect src;
+	SDL_Rect dst;
+
+	src.x = 0;
+	src.y = 0;
+	src.w = tex->width;
+	src.h = tex->height;
+
+	dst.x = x;
+	dst.y = y;
+	dst.w = tex->width;
+	dst.h = tex->height;
+
+	SDL_BlitSurface(tex->surface, &src, sdl_screen_surface, &dst);
+	SDL_UpdateWindowSurface(sdl_window);
 }
 
 /* texture support -- not part of screen! represented with load(...)
    and unload(...) keywords! */
 
-void* _load_tex(char* path){
+texture* _load_tex(char* path){
+	SDL_Surface* sdl_img = SDL_LoadBMP(path);
+	if(!sdl_img) _seam_fatal("Error loading BMP!");
+
+	texture* result = malloc(sizeof(texture));
+	if(!result) _seam_fatal("Failed to allocate space for surface!");
+	result->surface = sdl_img;
+	result->width = sdl_img->w;
+	result->height = sdl_img->h;
+
+	return result;
 }
 
-void* _unload_tex(char* path){
+void _unload_tex(texture* tex){
+	if(tex){
+		SDL_FreeSurface(tex->surface);
+		free(tex);
+	}
 }
 
 /* 'keyboard' entity */

@@ -53,8 +53,9 @@ void program_ep(){
 	_gc(); 
 	
 	_screen_out("--- TEST SCREEN/KEYBOARD BUILT-IN ---");
-	_screen_init(300, 300);
-	_screen_delay(2000);
+	_screen_init(640, 640);
+	_screen_set_background(0xff00ffff);
+	_screen_delay(1000);
 
 	if(_keyboard_keydown(SDLK_LEFT)){
 		_screen_out("Left is down!");
@@ -62,7 +63,11 @@ void program_ep(){
 		_screen_out("Left is up!");
 	}
 
-	_screen_delay(1000);
+	texture* tex = _load_tex("kitty.bmp");
+	_screen_draw(tex, 0, 0);	
+	_unload_tex(tex);
+
+	_screen_delay(2000);
 
 	_screen_stop();
 }

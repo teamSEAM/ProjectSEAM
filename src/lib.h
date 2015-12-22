@@ -23,6 +23,13 @@ typedef struct alloc_node {
 	int ref_count;
 } alloc_node;
 
+struct texture;
+typedef struct texture {
+	SDL_Surface* surface;
+	int width;
+	int height;
+} texture;
+
 /* Core globals shared across all modules */
 static entity_node* ehead = NULL; //Entity list
 static alloc_node* ahead = NULL; //Allocation list
@@ -58,12 +65,12 @@ void _screen_init(int width, int height);
 void _screen_stop();
 void _screen_delay(int milliseconds); /* Not provided to user */
 void _screen_set_background(int color);
-void _screen_draw(void* tex, int x, int y);
+void _screen_draw(texture* tex, int x, int y);
 
 /* Texture loading */
 
-void* _load_tex(char* path);
-void* _unload_tex(char* path);
+texture* _load_tex(char* path);
+void _unload_tex(texture* surface);
 
 /* 'keyboard' entity */
 

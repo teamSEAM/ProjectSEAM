@@ -38,6 +38,9 @@ int main(int argc, char** argv){
 		//Collect garbage
 		_gc();
 	
+		//Update screen
+		if(window_inited) SDL_UpdateWindowSurface(sdl_window);
+
 		//Cap simulation at 30 FPS
 		int time_diff = SDL_GetTicks() - ticks;
 		int wait_duration = TICK_DURATION - time_diff;
