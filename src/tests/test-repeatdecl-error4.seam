@@ -1,0 +1,4 @@
+entity World:
+	func start(int i, int i):
+		screen.out("Entities Exist")
+

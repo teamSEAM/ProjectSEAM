@@ -1,0 +1,10 @@
+entity World:
+	int i
+	int j
+	int k
+	int i
+	func start():
+		screen.out("Entities Exist")
+	func start():
+		screen.out("Entities Exist")
+

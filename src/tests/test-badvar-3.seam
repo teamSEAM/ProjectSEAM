@@ -1,0 +1,7 @@
+entity World:
+	int j
+	func start():
+		j = 33
+		if ( 3 + 5 > true):
+			i = i + 1
+			
