@@ -113,7 +113,7 @@ let rec tr_formal (typ, name) =
   | Int -> "int " ^ name
   | String -> "char *" ^ name
   | Float -> "float " ^ name
-  | Instance(s) -> "struct " ^ s ^ " " ^ name
+  | Instance(s) -> s ^ " " ^ name
   | Array(t, size) -> tr_formal(t, name) ^ "[" ^ string_of_int size ^ "]"
 
 let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
@@ -122,20 +122,57 @@ let tr_fdecl env fdecl =
   let env = add_scope env (fdecl.formals @ fdecl.locals) in
   let ename = env.scope.current_entity.ename in
   let mangled_fname = "__" ^ ename ^ "_" ^ fdecl.fname in
-  let first_arg = "struct " ^ ename ^ " *this" in
+  let first_arg = ename ^ " *this" in
   let rtype = fdecl.rtype in
   string_of_rtype rtype ^ " " ^ mangled_fname ^
     "(" ^ String.concat ", " (first_arg :: List.map string_of_formal fdecl.formals) ^
     ") {\n" ^ String.concat "\n" (List.map tr_vdecl fdecl.locals) ^ "\n" ^
     String.concat "\n" (List.map (tr_stmt env) fdecl.body) ^ "\n}\n"
 
+let update_stub edecl fdecl =
+  try let _ = List.find (fun f -> f.fname = fdecl.fname)
+	edecl.methods
+      in edecl
+  with Not_found -> {
+    ename = edecl.ename;
+    fields = edecl.fields;
+    methods = List.rev (fdecl :: (List.rev edecl.methods));
+  }
+
 let tr_edecl (env, output) edecl =
+  let stubs = [ {rtype = Void;
+		 fname = "step";
+		 formals = [];
+		 locals = [];
+		 body = [];
+		};
+		{rtype = Void;
+		 fname = "start";
+		 formals = [];
+		 locals = [];
+		 body = [];
+		};
+		{rtype = Void;
+		 fname = "stop";
+		 formals = [];
+		 locals = [];
+		 body = [];
+		};
+		{rtype = Void;
+		 fname = "render";
+		 formals = [];
+		 locals = [];
+		 body = [];
+		}
+	      ]
+  in
+  let edecl = List.fold_left update_stub edecl stubs in
   let env = add_edecl env edecl in
   let ename = edecl.ename in
   let fields = List.map tr_vdecl edecl.fields in
   let methods = List.map (tr_fdecl env) edecl.methods in
-  let translated = "struct " ^ ename ^ " {\n" ^
-    String.concat "\n" fields ^ "\n};\n" ^
+  let translated = "typedef struct " ^ ename ^ " {\n" ^
+    String.concat "\n" fields ^ "\n} " ^ ename ^";\n" ^
     String.concat "\n" methods in
   (env, translated :: output)
 
