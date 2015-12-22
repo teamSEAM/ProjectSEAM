@@ -14,7 +14,7 @@ let gen_spawn ename =
      node->next = NULL;
 
      entity_node *curr = ehead;
-     while(curr && curr->next) curr = next->next;
+     while(curr && curr->next) curr = curr->next;
 
      if(curr)
        curr->next = node;

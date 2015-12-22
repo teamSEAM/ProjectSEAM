@@ -127,7 +127,7 @@ let is_stub fname =
 let tr_fdecl env fdecl =
   let env = add_scope env (fdecl.formals @ fdecl.locals) in
   let ename = env.scope.current_entity.ename in
-  let mangled_fname = "__" ^ ename ^ "_" ^ fdecl.fname in
+  let mangled_fname = ename ^ "_" ^ fdecl.fname in
   let first_arg = if (is_stub fdecl.fname) then "void *in" else ename ^ " *this" in
   let rtype = fdecl.rtype in
   string_of_rtype rtype ^ " " ^ mangled_fname ^
