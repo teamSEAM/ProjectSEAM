@@ -63,7 +63,7 @@ let rec string_of_dtype = function
   | Instance(name) -> "instance(" ^ name ^ ")"
 
 let string_of_rtype = function
-  | Void -> "function"
+  | Void -> "void"
   | ActingType(at) -> string_of_dtype at
 
 let rec string_of_literal = function
@@ -77,6 +77,10 @@ let rec string_of_literal = function
 let rec string_of_identifier = function
   | Name(name) -> name
   | Member(parent, name) -> parent ^ "." ^ name
+
+let name_of_identifier = function
+  | Name(name) -> name
+  | Member(parent, name) -> name
 
 let rec string_of_expr = function
   | Literal(lit) -> string_of_literal lit

@@ -1,0 +1,6 @@
+entity World:
+	string var1
+	func start():
+		var1="HELLO STEP FUNCTION"
+	func step():
+		screen.out(var1)
