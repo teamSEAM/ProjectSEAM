@@ -26,8 +26,10 @@ let type_int      = "int"
 let type_string   = "string"
 let type_float    = "float"
 let type_instance = "instance " regex_id
+let type_texture  = "texture"
 let regex_type =
-  (type_bool | type_int | type_string | type_float | type_instance)
+  (type_bool | type_int | type_string | type_float |
+      type_instance | type_texture)
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -63,6 +65,7 @@ rule token = parse
 | "string" { STRING }
 | "entity" { ENTITY }
 | "func"   { FUNC }
+| "texture"{ TEXTURE }
 | "spawn"  { SPAWN }
 | "kill"   { KILL }
 | lit_bool as b   { LIT_BOOL(bool_of_string b) }
