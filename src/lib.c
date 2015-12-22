@@ -2,6 +2,15 @@
 
 /* Library for SEAMScript runtime */
 
+entity_node* ehead = NULL; //Entity list
+alloc_node* ahead = NULL; //Allocation list
+int quit_requested = 0;
+
+SDL_Window* sdl_window = NULL; //SDL window
+SDL_Surface* sdl_screen_surface = NULL;
+int window_inited = 0; //Have we created an SDL window?
+keyboard_node* khead = NULL;
+
 /* Memory management */
 
 //Construct a node and add it to the list. */
@@ -103,7 +112,7 @@ void stub(void* data){ /* Stubby. */ }
 
 /* 'convert' entity */
 
-char* _string_join(char* str1, char* str2){
+char* _convert_string_join(char* str1, char* str2){
 	int str1len = strlen(str1);
 	int str2len = strlen(str2);
 

@@ -41,7 +41,7 @@ void World_spawn(){
 
 	_screen_out("--- TEST CONVERSIONS ---");
 	
-	char* sum = _string_join("Hello ", "world!");
+	char* sum = _convert_string_join("Hello ", "world!");
 	_screen_out(sum);
 
 	char* int_str = _convert_int_to_str(500);

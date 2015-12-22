@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __LIB_H__
+#define __LIB_H__
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -39,14 +40,14 @@ typedef struct keyboard_node {
 } keyboard_node;
 
 /* Core globals shared across all modules */
-static entity_node* ehead = NULL; //Entity list
-static alloc_node* ahead = NULL; //Allocation list
-static int quit_requested = 0;
+extern entity_node* ehead; //Entity list
+extern alloc_node* ahead; //Allocation list
+extern int quit_requested;
 
-static SDL_Window* sdl_window = NULL; //SDL window
-static SDL_Surface* sdl_screen_surface = NULL;
-static int window_inited = 0; //Have we created an SDL window?
-static keyboard_node* khead = NULL;
+extern SDL_Window* sdl_window; //SDL window
+extern SDL_Surface* sdl_screen_surface;
+extern int window_inited; //Have we created an SDL window?
+extern keyboard_node* khead;
 
 /* Memory management */
 void _make_node(void* ptr);
@@ -62,7 +63,7 @@ void _seam_fatal(char* err);
 
 /* 'convert' entity */
 
-char* _string_join(char* str1, char* str2);
+char* _convert_string_join(char* str1, char* str2);
 char* _convert_int_to_str(int input);
 char* _convert_float_to_str(float input);
 float _convert_int_to_float(int input);
@@ -88,4 +89,7 @@ void _keyboard_poll_events();
 int _keyboard_event_check(int type, int code);
 int _keyboard_keydown(int code);
 int _keyboard_keyup(int code);
+
 void _check_quit_requested();
+
+#endif

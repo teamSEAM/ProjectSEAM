@@ -48,10 +48,11 @@ fi
 echo "#include \"gen.h\"" | cat - gen.c > temp && mv temp gen.c
 echo "#include \"lib.h\"" | cat - gen.c > temp && mv temp gen.c
 
-gcc lib.c -c -o lib.o
+gcc -g -c lib.c -o lib.o
 # This is their code
-gcc lib.o gen.c -c -o gen.o
-gcc main.c lib.o gen.o -lSDL2  -o $2
+gcc -g -c gen.c -o gen.o
+gcc -g -c main.c -o main.o
+gcc -g main.o lib.o gen.o -lSDL2  -o $2
 
 #rm temp.seami
 #rm gen.c

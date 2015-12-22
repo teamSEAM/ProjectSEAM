@@ -23,7 +23,10 @@ int main(int argc, char** argv){
 	while(running){
 		//Call step functions
 		entity_node* curr = ehead;
-		if(!curr) running = 0;
+		if(!curr){
+			_screen_out("[info] No entities remaining; quitting");
+			running = 0;
+		}
 		
 		while(curr){
 			curr->step(curr->data); 
