@@ -1,0 +1,13 @@
+#Float to int and int to float and string join#
+entity World:
+	int my_int
+	float my_float
+	string s1
+
+	func start():
+		my_float=1.0
+		my_int=3
+		s1="YO"
+		screen.out(convert.float_to_str(convert.int_to_float(my_int)+my_float))
+		screen.out(convert.int_to_str(convert.float_to_int(my_float)+my_int))
+		screen.out(string_join(s1,s1))

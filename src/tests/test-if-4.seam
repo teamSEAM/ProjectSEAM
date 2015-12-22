@@ -2,4 +2,4 @@
 entity World:
 	func start():
 		if(1==1):
-			print("No Else")
+			system.out("No Else")

@@ -1,6 +1,6 @@
 entity World:
 	func start():
 		if(1==1):
-			print("1==1 OK")
+			system.out("1==1 OK")
 		else:
-			print("1==1 FAIL")
+			system.out("1==1 FAIL")
