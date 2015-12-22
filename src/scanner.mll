@@ -63,6 +63,8 @@ rule token = parse
 | "string" { STRING }
 | "entity" { ENTITY }
 | "func"   { FUNC }
+| "spawn"  { SPAWN }
+| "kill"   { KILL }
 | lit_bool as b   { LIT_BOOL(bool_of_string b) }
 | lit_int as i    { LIT_INT(int_of_string i) }
 | lit_float as f  { LIT_FLOAT(float_of_string f) }

@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
+type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | Spawn | Kill
 type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
 type rtype = Void | ActingType of dtype
 
@@ -18,6 +18,7 @@ type expr =
 | Id of identifier               (* variables and fields *)
 | Call of identifier * expr list (* functions and methods *)
 | Binop of expr * op * expr
+| Unop of op * expr
 | Assign of identifier * expr
 | Access of identifier * expr    (* array access *)
 | Noexpr
@@ -52,6 +53,7 @@ let string_of_op = function
   | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
   | Equal -> "==" | Neq -> "!="
   | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">="
+  | Spawn -> "spawn" | Kill -> "kill"
 
 let rec string_of_dtype = function
   | Bool -> "bool"
@@ -87,6 +89,7 @@ let rec string_of_expr = function
   | Id(id) -> string_of_identifier id
   | Binop(e1, o, e2) ->
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
+  | Unop(o, e) -> (string_of_op o) ^ " " ^ (string_of_expr e)
   | Assign(id, e) -> string_of_identifier id ^ " = " ^ string_of_expr e
   | Access(id, e) -> string_of_identifier id ^ "[" ^ string_of_expr e ^ "]"
   | Call(id, args) ->

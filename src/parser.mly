@@ -9,6 +9,7 @@
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE
+%token SPAWN KILL
 %token <string> ID
 %token <bool>   LIT_BOOL
 %token <int>    LIT_INT
@@ -23,6 +24,8 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
+%right SPAWN
+%right KILL
 %left DOT
 
 %start program
@@ -115,6 +118,8 @@ expr:
  | expr LEQ    expr { Binop($1, Leq,   $3) }
  | expr GT     expr { Binop($1, Greater,  $3) }
  | expr GEQ    expr { Binop($1, Geq,   $3) }
+ | SPAWN expr       { Unop(Spawn, $2) }
+ | KILL  expr       { Unop(Kill, $2) }
  | id ASSIGN expr   { Assign($1, $3) }
  | id LBRACKET expr RBRACKET    { Access($1, $3) }
  | id LPAREN actuals_opt RPAREN { Call($1, $3) }

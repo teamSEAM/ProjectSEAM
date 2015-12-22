@@ -79,7 +79,7 @@ let pop_scope env =
 
 let tr_identifier env id =
   (if (is_field env.scope (name_of_identifier id)) then
-      "(this->" else "(") ^ string_of_identifier id ^ ")"
+      "this->" else "") ^ string_of_identifier id
 
 let is_builtin name =
   try let _ = List.find (fun s -> s = name) Lib.modules in true
@@ -90,6 +90,8 @@ let rec tr_expr env = function
   | Id(id) -> tr_identifier env id
   | Binop(e1, o, e2) ->
     (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
+  | Unop(o, e) ->
+    string_of_op o ^ " " ^ (tr_expr env) e
   | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
   | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
   | Call(id, args) ->
