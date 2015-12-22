@@ -1,13 +1,60 @@
-#include "gen.h"
+#include "lib.h"
+#include "gen.h" /* Generated program code */
+
+#define TICK_DURATION 1000 / 60
 
 int main(int argc, char** argv){
+	//Start SDL
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0){
+		_seam_fatal("Failed to start SDL!");
+	}
 
+	//Exported from lib.h
+	entity_node* entity_head = NULL;
+	alloc_node* alloc_head = NULL;
 
-    //start_SDL(640, 480);
-    // Modify to send args to program_ep later
-    program_ep();
-    //delay(1500);
-    //stop_SDL();
+	//Create the required World object that populates entity list
+	// __World_start(); //Guanteed to exist
 
+	//Main program loop
+	int running = 1;
+	uint32_t ticks = SDL_GetTicks();
+	while(running){
+		//Call step functions
+		entity_node* curr = ehead;
+		if(!curr) running = 0;
+		
+		while(curr){
+			//(curr->step)(curr->data); //Pass in members struct
+			curr = curr->next;
+		}
+
+		//Call render functions
+		curr = ehead;
+		while(curr){
+			//curr->render(curr->data);
+		}
+
+		//Collect garbage
+		_gc();
+	
+		//Cap simulation at 30 FPS
+		int time_diff = SDL_GetTicks() - ticks;
+		int wait_duration = TICK_DURATION - time_diff;
+
+		if(wait_duration < 0){
+			fprintf(stderr, "Simulation slower than 30FPS by %d ms/frame\n",
+				-wait_duration);
+		} else {
+			_screen_delay(wait_duration);
+		}
+		ticks = SDL_GetTicks();
+	}
+
+	//TESTING ONLY: Call program_ep
+	program_ep();
+
+	//Exit SDL
+	SDL_Quit();
     return 0;
 }
