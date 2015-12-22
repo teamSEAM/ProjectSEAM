@@ -20,6 +20,7 @@ type expr =
 | Call of identifier * expr list (* functions and methods *)
 | Binop of expr * op * expr
 | Assign of identifier * expr
+| Access of identifier * expr    (* array access *)
 | Noexpr
 
 type stmt =
@@ -88,6 +89,7 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Assign(id, e) -> string_of_identifier id ^ " = " ^ string_of_expr e
+  | Access(id, e) -> string_of_identifier id ^ "[" ^ string_of_expr e ^ "]"
   | Call(id, args) ->
     string_of_identifier id ^
       "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
@@ -121,7 +123,7 @@ let string_of_fdecl fdecl =
 
 let string_of_edecl edecl =
   "entity " ^ edecl.ename ^ "\n{\n" ^
-    String.concat "" (List.map string_of_vdecl edecl.fields) ^
+    String.concat "" (List.map string_of_vdecl edecl.fields) ^ "\n" ^
     String.concat "" (List.map string_of_fdecl edecl.methods) ^
     "}\n"
 
