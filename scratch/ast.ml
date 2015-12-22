@@ -1,14 +1,13 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
-type primitive = Bool | Int | String | Float | Instance of string
-type array_size = NotAnArray | Dynamic | ArraySize of int
-type atype = primitive * array_size
-type ret_type = Void | ActingType of atype
+type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
+type rtype = Void | ActingType of dtype
 
 type literal =
 | LitBool of bool
 | LitInt of int
 | LitFloat of float
 | LitString of string
+| LitArray of literal * int
 
 type identifier =
 | Name of string
@@ -31,10 +30,10 @@ type stmt =
 | For of expr * expr * expr * stmt
 | While of expr * stmt
 
-type vdecl = atype * string
+type vdecl = dtype * string
 
 type fdecl = {
-  rtype : ret_type;
+  rtype : rtype;
   fname : string;
   formals : vdecl list;
   locals : vdecl list;
@@ -54,30 +53,26 @@ let string_of_op = function
   | Equal -> "==" | Neq -> "!="
   | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">="
 
-let string_of_primitive = function
+let rec string_of_dtype = function
   | Bool -> "bool"
   | Int -> "int"
   | String -> "string"
   | Float -> "float"
+  | Array(t, size) ->
+    string_of_dtype t ^ "[" ^ string_of_int size ^ "]"
   | Instance(name) -> "instance(" ^ name ^ ")"
 
-let string_of_array_size = function
-  | NotAnArray -> ""
-  | Dynamic -> "[]"
-  | ArraySize(size) -> "[" ^ string_of_int size ^ "]"
-
-let string_of_atype (t, s) =
-  string_of_primitive t ^ string_of_array_size s
-
-let string_of_ret_type = function
+let string_of_rtype = function
   | Void -> "function"
-  | ActingType(at) -> string_of_atype at
+  | ActingType(at) -> string_of_dtype at
 
-let string_of_literal = function
+let rec string_of_literal = function
   | LitBool(b) -> string_of_bool b
   | LitInt(b) -> string_of_int b
   | LitString(s) -> s
   | LitFloat(f) -> string_of_float f
+  | LitArray(l, size) ->
+    string_of_literal l ^ "[" ^ string_of_int size ^ "]"
 
 let rec string_of_identifier = function
   | Name(name) -> name
@@ -110,12 +105,12 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_vdecl (t, id) = string_of_atype t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id) = string_of_dtype t ^ " " ^ id ^ ";\n"
 
-let string_of_formal (t, id) = string_of_atype t ^ " " ^ id
+let string_of_formal (t, id) = string_of_dtype t ^ " " ^ id
 
 let string_of_fdecl fdecl =
-  string_of_ret_type fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
+  string_of_rtype fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
     String.concat ", " (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
     String.concat "" (List.map string_of_vdecl fdecl.locals) ^
     String.concat "" (List.map string_of_stmt fdecl.body) ^

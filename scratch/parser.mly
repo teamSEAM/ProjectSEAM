@@ -1,13 +1,9 @@
 %{
   open Ast
-
-  let fst3 (a,b,c) = a
-  let snd3 (a,b,c) = b
-  let trd3 (a,b,c) = c
 %}
 
 %token BOOL INT FLOAT STRING
-%token ENTITY INSTANCE FUNC
+%token ENTITY FUNC
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 %token SEMI COMMA DOT
 %token PLUS MINUS TIMES DIVIDE ASSIGN
@@ -51,7 +47,7 @@ fdecl_list:
  | fdecl fdecl_list { $1 :: $2 }
 
 fdecl:
- | atype ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+ | dtype ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { rtype = ActingType($1);
 	 fname = $2;
 	 formals = $4;
@@ -69,30 +65,23 @@ formals_opt:
  | formal_list   { List.rev $1 }
 
 formal_list:
- | atype ID                   { [ ($1, $2) ] }
- | formal_list COMMA atype ID { ($3, $4) :: $1 }
+ | dtype ID                   { [ ($1, $2) ] }
+ | formal_list COMMA dtype ID { ($3, $4) :: $1 }
 
 vdecl_list:
  | /* nothing */    { [] }
  | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
- | atype ID SEMI { $1, $2 }
+ | dtype ID SEMI { $1, $2 }
 
-atype:
- | primitive array_size { $1, $2 }
-
-primitive:
+dtype:
  | BOOL   { Bool }
  | INT    { Int }
  | FLOAT  { Float }
  | STRING { String }
- | INSTANCE ID { Instance($2) }
-
-array_size:
- | /* nothing */             { NotAnArray }
- | LBRACKET RBRACKET         { Dynamic }
- | LBRACKET LIT_INT RBRACKET { ArraySize($2) }
+ | LT ID GT { Instance($2) }
+ | dtype LBRACKET LIT_INT RBRACKET { Array($1, $3) }
 
 stmt_list:
  | /* nothing */  { [] }
