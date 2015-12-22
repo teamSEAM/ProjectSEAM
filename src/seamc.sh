@@ -1,4 +1,9 @@
 #!/bin/sh
 
-# remove trailing whitespace and convert tabs to spaces
-sed 's/[ \t]*$//' | ./preprocessor | ./seam
+SOURCE=$1
+GEN_C=${SOURCE%.*}.c
+
+# sed: remove trailing whitespace
+sed -e 's/[ \t]*$//' -e '/^$/d' $SOURCE | ./preprocessor | ./seam > $GEN_C
+
+rm $GEN_C
