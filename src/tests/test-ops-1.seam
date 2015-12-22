@@ -1,6 +1,6 @@
 #Test Basic Ops#
 entity World:
-	func Main:
+	func Main():
 		if((1+2)==3):
 			screen.out("Addition PASS")
 		else:
@@ -21,3 +21,4 @@ entity World:
 		else:
 			screen.out("Division FAIL")
 
+#
