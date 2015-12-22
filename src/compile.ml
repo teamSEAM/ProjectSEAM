@@ -1,116 +1,129 @@
-include Ast
+open Ast
 
-module StringMap = Map.Make(String)
+exception UndeclaredEntity of string
+exception UndeclaredVariable of string
 
-type scope = {
-  vdecls: vdecl StringMap.t;
-  fdecls: fdecl StringMap.t
+type symbol_table = {
+  parent : symbol_table option;
+  current_entity : edecl;
+  variables : vdecl list;
 }
 
 type environment = {
-  entity_decls: entity_decl StringMap.t;
-  scopes: scope list;
+  entities : edecl list;
+  scope : symbol_table;
 }
 
-let c_ret_equivalents obj = match obj with
-    | Void -> "void"
-    | ActingType(t) -> match (snd t) with
-        | Dynamic -> ""
-        | ArraySize(i) -> ""
-        | NotAnArray -> c_equivalents (fst t)
+let find_entity (env : environment) name =
+  try List.find (fun e -> e.ename = name) env.entities
+  with Not_found -> raise (UndeclaredEntity name)
 
-(* Takes as input the checked AST-toplevel, and
-   generates the C output *)
-let translate checked_program =
-    (* Rename IDs to prevent clashes with libraries *)
-    let translate_id id =
-        String.concat "" ["__"; id;]
-    in
+let rec find_variable (scope : symbol_table) name =
+  try List.find (fun (_, n) -> n = name) scope.variables
+  with Not_found ->
+    match scope.parent with
+      Some(parent) -> find_variable parent name
+    | _ -> raise (UndeclaredVariable name)
 
-    (* Recursively expands expressions into C *)
-    let rec expand_expr expr_obj = match expr_obj with
-        | IntLit(i) -> (* Integer literals *)
-            [string_of_int i;]
-        | StrLit(str) -> (* String literals *)
-            [str;]
-        | Id(str) -> (* Identifiers *)
-            [translate_id str;]
-        | Binop(left, op, right) -> (* Match binary operations *)
-            ["(";]
-            @ (expand_expr left)
-            @ [")"; c_op op; "(";]
-            @ (expand_expr right) @ [ ")";]
-        | Assign(str, expr) -> (* Assignment of variables *)
-            [translate_id str;]
-            @ [" = ";]
-            @ (expand_expr expr)
-        | _ -> (* Unmatched expression -- SHOULD throw an error *)
-            []
-    in
+let add_edecl env edecl = {
+  entities = edecl :: env.entities;
+  scope = {
+    parent = None;
+    current_entity = edecl;
+    variables = edecl.fields;
+  };
+}
 
-    (* We raise exceptions if stuff goes bad *)
-    let handle_fdecl current_fdecl =
-        (* handle the type *)
-        let ret_type = c_ret_equivalents (current_fdecl.vtype) in
-        let formals = "()" in
-        let function_name =
-                if (String.compare current_fdecl.fname "main") == 0 then
-                    "program_ep"
-                else current_fdecl.fname in
-        let statements =
+let add_scope env vdecls = {
+  entities = env.entities;
+  scope = {
+    parent = Some(env.scope);
+    current_entity = env.scope.current_entity;
+    variables = vdecls;
+  };
+}
 
-                (* too many layers of "let", this will be refactored later *)
-                let rec handle_stmt current_stmt list_so_far =
-                        match current_stmt with
+let rec tr_expr env = function
+  | Literal(lit) -> string_of_literal lit
+  | Id(id) -> string_of_identifier id
+  | Binop(e1, o, e2) ->
+    (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
+  | Assign(id, e) -> string_of_identifier id ^ " = " ^ (tr_expr env) e
+  | Access(id, e) -> string_of_identifier id ^ "[" ^ (tr_expr env) e ^ "]"
+  | Call(id, args) ->
+    string_of_identifier id ^
+      "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
+  | Noexpr -> ""
 
-                                | Print(expr) ->
-                                   (match expr with
-                                        | StrLit(str) | Id(str) -> "_seam_print(" ::
-                                                ((expand_expr expr) @ (");" :: list_so_far ) )
-                                        | _ -> [] (* TODO throw error *))
-                                | Return(expr) ->
-                                   "return" :: (expand_expr expr @ (";" :: list_so_far ))
+let rec tr_stmt env = function
+  | Block(stmts) ->
+    "{\n" ^ String.concat "" (List.map (tr_stmt env) stmts) ^ "}\n"
+  | Expr(expr) -> (tr_expr env) expr ^ ";\n";
+  | Return(expr) -> "return " ^ (tr_expr env) expr ^ ";\n";
+  | If(e, s, Block([])) ->
+    "if (" ^ (tr_expr env) e ^ ")\n" ^ (tr_stmt env) s
+  | If(e, s1, s2) ->
+    "if (" ^ (tr_expr env) e ^ ")\n" ^ (tr_stmt env) s1 ^
+      "else\n" ^ (tr_stmt env) s2
+  | For(e1, e2, e3, s) ->
+    "for (" ^ (tr_expr env) e1  ^ " ; " ^ (tr_expr env) e2 ^ " ; " ^
+      (tr_expr env) e3  ^ ") " ^ (tr_stmt env) s
+  | While(e, s) -> "while (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s
 
-                                | If(expr,s1,s2)->(* IF[expr{STMT1} ELSE {STMT}*)
-                                    ["if(";]
-                                    @ (expand_expr expr @ ([")";]))
-                                    @["\n{";]
-                                    @ (handle_stmt s1 []  @ (["\n}";]))
-                                    @["else\n{";]
-                                    @( handle_stmt s2 []  @(["}";]))
-                                    @ list_so_far
+let tr_vdecl (typ, name) =
+  string_of_dtype typ ^ " " ^ name ^ ";"
 
-                                (*|Block(stmts) ->
-                                    "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-                                | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^
-                                    ")\n" ^ string_of_stmt s
-                                | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n"
-                                    ^ string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
-                                 *)
-                                | _ -> "" :: list_so_far
-        in
+let tr_fdecl env fdecl =
+  let env = add_scope env (fdecl.formals @ fdecl.locals) in
+  let ename = env.scope.current_entity.ename in
+  let mangled_fname = "__" ^ ename ^ "_" ^ fdecl.fname in
+  let first_arg = "struct " ^ ename ^ " *this" in
+  let rtype = fdecl.rtype in
+  string_of_rtype rtype ^ " " ^ mangled_fname ^
+    "(" ^ String.concat ", " (first_arg :: List.map string_of_formal fdecl.formals) ^
+    ") {\n" ^ String.concat "\n" (List.map tr_vdecl fdecl.locals) ^ "\n" ^
+    String.concat "\n" (List.map (tr_stmt env) fdecl.body) ^ "\n}\n"
 
-                (* use fold_right to generate the statements *)
-                let tokens = List.fold_right handle_stmt current_fdecl.body [] in
-                String.concat " " tokens
-        in
+let tr_edecl (env, output) edecl =
+  let env = add_edecl env edecl in
+  let ename = edecl.ename in
+  let fields = List.map tr_vdecl edecl.fields in
+  let methods = List.map (tr_fdecl env) edecl.methods in
+  let translated = "struct " ^ ename ^ " {\n" ^
+    String.concat "\n" fields ^ "\n};\n\n" ^
+    String.concat "\n" methods ^ "\n" in
+  (env, translated :: output)
 
-    let function_production = ret_type :: function_name ::
-                formals :: "{" :: statements :: ["}"]
-                in
-        function_production
-        in
+let translate entities =
+  let empty_edecl = { ename = ""; fields = []; methods = [] } in
+  let empty_env = {
+    entities = [];
+    scope = { parent = None; current_entity = empty_edecl; variables = [] };
+  } in
+  let (env, translated) = (List.fold_left tr_edecl (empty_env, []) entities) in
+  String.concat "\n" translated
 
-    let handle_toplevel list_so_far current_toplevel =
-        let current =
-                match current_toplevel with
-                | TopLevelFunction(fdecl) -> handle_fdecl fdecl
-                | TopLevelVar(v) -> []
-                | TopLevelEntity(e) -> []
-        in current @ list_so_far
-        in
+(* let tr_stmt stmt = string_of_stmt stmt *)
 
-    let string_tokens = List.fold_left handle_toplevel [] checked_program
-        in
+(* let tr_vdecl (dtype, name) = *)
 
-    String.concat " " string_tokens
+
+(* let tr_fdecl ename fdecl = *)
+(*   let first_arg = "struct " ^ ename ^ "* self" *)
+(*   and mangled_fname = "__" ^ ename ^ " " ^ fdecl.fname *)
+(*   and formals = List.map string_of_formal fdecl.formals *)
+(*   and locals = List.map tr_vdecl fdecl.locals *)
+(*   in *)
+(*   string_of_rtype fdecl.rtype ^ *)
+(*     mangled_fname ^ *)
+(*     "(" ^ String.concat ", " (first_arg :: formals) ^ ") {\n" ^ *)
+
+(*     "}\n" *)
+
+(* let tr_edecl edecl = *)
+(*   "struct " ^ edecl.ename ^ " {\n" ^ *)
+(*     String.concat "\n" (List.map string_of_vdecl edecl.fields) ^ "\n}\n\n" ^ *)
+(*     String.concat "\n" (List.map (tr_fdecl edecl.name) edecl.methods) ^ "\n" *)
+
+(* let translate entities = *)
+(*   String.concat "\n" (List.map tr_edecl entities) *)
