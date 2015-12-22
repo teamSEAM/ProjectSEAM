@@ -14,6 +14,17 @@ type environment = {
   scope : symbol_table;
 }
 
+let rec string_of_scope s =
+  "parent: " ^ (match s.parent with
+  | None -> ""
+  | Some(p) -> string_of_scope p) ^ ")\ncurrent_entity: " ^
+    string_of_edecl s.current_entity ^ "\nvariables: " ^
+    String.concat "; " (List.map string_of_vdecl s.variables)
+
+let string_of_env env =
+  "entities: " ^ String.concat ", " (List.map string_of_edecl env.entities) ^
+    "\nscope: " ^ string_of_scope env.scope ^ "\n"
+
 let find_entity (env : environment) name =
   try List.find (fun e -> e.ename = name) env.entities
   with Not_found -> raise (UndeclaredEntity name)
@@ -35,21 +46,47 @@ let add_edecl env edecl = {
 }
 
 let add_scope env vdecls = {
-  entities = env.entities;
-  scope = {
-    parent = Some(env.scope);
-    current_entity = env.scope.current_entity;
-    variables = vdecls;
-  };
+    entities = env.entities;
+    scope = {
+      parent = Some(env.scope);
+      current_entity = env.scope.current_entity;
+      variables = vdecls;
+    };
 }
+
+let in_scope scope name =
+  try
+    let _ = (List.find (fun (_, n) -> n = name) scope.variables) in
+    true
+  with Not_found -> false
+
+let rec is_field scope name =
+  match scope.parent with
+  | None -> true
+  | Some(parent) ->
+    if (in_scope scope name) then false
+    else is_field parent name
+
+let pop_scope env =
+  match env.scope.parent with
+  | Some(new_scope) ->
+    {
+      entities = env.entities;
+      scope = new_scope;
+    }
+  | None -> raise (Failure "Attempting to pop from empty environment")
+
+let tr_identifier env id =
+  (if (is_field env.scope (name_of_identifier id)) then
+      "(this->" else "(") ^ string_of_identifier id ^ ")"
 
 let rec tr_expr env = function
   | Literal(lit) -> string_of_literal lit
-  | Id(id) -> string_of_identifier id
+  | Id(id) -> tr_identifier env id
   | Binop(e1, o, e2) ->
     (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
-  | Assign(id, e) -> string_of_identifier id ^ " = " ^ (tr_expr env) e
-  | Access(id, e) -> string_of_identifier id ^ "[" ^ (tr_expr env) e ^ "]"
+  | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
+  | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
   | Call(id, args) ->
     string_of_identifier id ^
       "(" ^ String.concat ", " (List.map (tr_expr env) args) ^ ")"
@@ -70,8 +107,16 @@ let rec tr_stmt env = function
       (tr_expr env) e3  ^ ") " ^ (tr_stmt env) s
   | While(e, s) -> "while (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s
 
-let tr_vdecl (typ, name) =
-  string_of_dtype typ ^ " " ^ name ^ ";"
+let rec tr_formal (typ, name) =
+  match typ with
+  | Bool -> "int " ^ name
+  | Int -> "int " ^ name
+  | String -> "char *" ^ name
+  | Float -> "float " ^ name
+  | Instance(s) -> "struct " ^ s ^ " " ^ name
+  | Array(t, size) -> tr_formal(t, name) ^ "[" ^ string_of_int size ^ "]"
+
+let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
 
 let tr_fdecl env fdecl =
   let env = add_scope env (fdecl.formals @ fdecl.locals) in
@@ -90,7 +135,7 @@ let tr_edecl (env, output) edecl =
   let fields = List.map tr_vdecl edecl.fields in
   let methods = List.map (tr_fdecl env) edecl.methods in
   let translated = "struct " ^ ename ^ " {\n" ^
-    String.concat "\n" fields ^ "\n};\n\n" ^
+    String.concat "\n" fields ^ "\n};\n" ^
     String.concat "\n" methods in
   (env, translated :: output)
 
