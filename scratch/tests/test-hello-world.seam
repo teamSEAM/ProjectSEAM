@@ -1,4 +1,4 @@
 entity World:
-	func Main:
+	func Main():
 		print("Hello World")
 

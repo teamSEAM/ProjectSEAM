@@ -1,0 +1,14 @@
+#Tests function calls within a entity#
+entity World:
+	func main():
+		int x
+		x=add(1,2)
+		if(x==3):
+			screen.out("Works")
+		else:
+			screen.out("Fails")
+	int add(int a, int b):
+		int ans
+		ans=a+b
+		return ans
+
