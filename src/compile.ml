@@ -84,7 +84,7 @@ let tr_identifier env id =
       "(this->" else "(") ^
     (match parent_of_identifier id with
 	| "" ->  name_of_identifier id ^ ")"
-	| parent_of_identifier id ^ ")." ^ name_of_identifier id)
+	| _ -> parent_of_identifier id ^ ")." ^ name_of_identifier id)
 
 let is_builtin name =
   try let _ = List.find (fun s -> s = name) Lib.modules in true
