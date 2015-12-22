@@ -1,0 +1,35 @@
+Hello World
+1 Sees if you can just print a statement
+IF
+1 BASIC HELLO WORLD USING IF
+2 NESTED IFS
+3 OPERATION TEST
+4 No Else
+
+Entities 
+1 See if program compiles with entities
+2 Runs another entities' command
+3 No world function
+4 Use run to print a statement
+5 Use run and convert int to string and output
+6 Hello Render
+7 Incrementing the same variable in steps and render and printing (See how render does in )
+
+Types
+1 Instantiate int, float, bool, string and assign
+
+While
+1 See if basic while works
+
+OPS
+1 Test + - / *
+2 Test Order of precedence
+
+Function
+1 Do multiple entities and print statements
+2 Tests if you can call another function from the same World Entity
+
+
+Other entities with main
+functions of same name
+Try and pass a function from one entity to another
