@@ -2,7 +2,7 @@ open Ast
 open Boilerplate
 
 exception UndeclaredEntity of string
-exception UndeclaredVariable of string
+exception UndeclaredIdentifier of string
 
 type symbol_table = {
   parent : symbol_table option;
@@ -35,7 +35,7 @@ let rec find_variable (scope : symbol_table) name =
   with Not_found ->
     match scope.parent with
       Some(parent) -> find_variable parent name
-    | _ -> raise (UndeclaredVariable name)
+    | _ -> raise (UndeclaredIdentifier name)
 
 let add_edecl env edecl = {
   entities = edecl :: env.entities;
@@ -63,7 +63,9 @@ let in_scope scope name =
 
 let rec is_field scope name =
   match scope.parent with
-  | None -> true
+  | None ->
+    if (in_scope scope name) then true
+    else raise (UndeclaredIdentifier name)
   | Some(parent) ->
     if (in_scope scope name) then false
     else is_field parent name
@@ -90,15 +92,9 @@ let rec tr_expr env = function
   | Id(id) -> tr_identifier env id
   | Binop(e1, o, e2) ->
     (tr_expr env) e1 ^ " " ^ string_of_op o ^ " " ^ (tr_expr env) e2
-  | Unop(o, e) ->
-    let ename = (tr_expr env) e in
-    ename ^ "_" ^ string_of_op o ^
-      (match o with
-      | Spawn -> "()"
-      | Kill -> "(" ^ ename ^ ")"
-      | _ -> raise (Failure "Parsed binary operator as unary") )
   | Assign(id, e) -> tr_identifier env id ^ " = " ^ (tr_expr env) e
   | Access(id, e) -> tr_identifier env id ^ "[" ^ (tr_expr env) e ^ "]"
+  | Spawn(ent) -> ent ^ "_spawn()"
   | Call(id, args) ->
     (match id with
     | Name(n) -> tr_identifier env id ^ "(" ^
@@ -124,6 +120,11 @@ let rec tr_stmt env = function
     "for (" ^ (tr_expr env) e1  ^ " ; " ^ (tr_expr env) e2 ^ " ; " ^
       (tr_expr env) e3  ^ ") " ^ (tr_stmt env) s
   | While(e, s) -> "while (" ^ (tr_expr env) e ^ ") " ^ (tr_stmt env) s
+  | Kill(id) ->
+    let iname = name_of_identifier id in
+    let (dtype, _) = find_variable env.scope iname in
+    let ename = string_of_dtype dtype in
+    ename ^ "_kill(this->" ^ iname ^ ")"
 
 let rec tr_formal (typ, name) =
   match typ with
@@ -131,7 +132,7 @@ let rec tr_formal (typ, name) =
   | Int -> "int " ^ name
   | String -> "char *" ^ name
   | Float -> "float " ^ name
-  | Instance(s) -> s ^ " " ^ name
+  | Instance(s) -> s ^ " *" ^ name
   | Array(t, size) -> tr_formal(t, name) ^ "[" ^ string_of_int size ^ "]"
 
 let tr_vdecl vdecl = (tr_formal vdecl) ^ ";"
