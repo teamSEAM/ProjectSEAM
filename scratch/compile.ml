@@ -79,10 +79,10 @@ let tr_fdecl env fdecl =
   let mangled_fname = "__" ^ ename ^ "_" ^ fdecl.fname in
   let first_arg = "struct " ^ ename ^ " *this" in
   let rtype = fdecl.rtype in
-  string_of_rtype rtype ^ mangled_fname ^
+  string_of_rtype rtype ^ " " ^ mangled_fname ^
     "(" ^ String.concat ", " (first_arg :: List.map string_of_formal fdecl.formals) ^
     ") {\n" ^ String.concat "\n" (List.map tr_vdecl fdecl.locals) ^ "\n" ^
-    String.concat "\n" (List.map (tr_stmt env) fdecl.body)
+    String.concat "\n" (List.map (tr_stmt env) fdecl.body) ^ "\n}\n"
 
 let tr_edecl (env, output) edecl =
   let env = add_edecl env edecl in
@@ -90,7 +90,7 @@ let tr_edecl (env, output) edecl =
   let fields = List.map tr_vdecl edecl.fields in
   let methods = List.map (tr_fdecl env) edecl.methods in
   let translated = "struct " ^ ename ^ " {\n" ^
-    String.concat "\n" fields ^ "\n}\n\n" ^
+    String.concat "\n" fields ^ "\n};\n\n" ^
     String.concat "\n" methods ^ "\n" in
   (env, translated :: output)
 
