@@ -1,85 +1,126 @@
-(* Defines the operators allowed in a binary operation *)
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
+type dtype = Bool | Int | String | Float | Instance of string | Array of dtype * int
+type rtype = Void | ActingType of dtype
 
-(* Defines the different types of allowed expressions *)
+type literal =
+| LitBool of bool
+| LitInt of int
+| LitFloat of float
+| LitString of string
+| LitArray of literal * int
+
+type identifier =
+| Name of string
+| Member of string * string  (* entity id, member id *)
+
 type expr =
-    IntLit of int (* An integer literal *)
-  | StrLit of string (* A string literal *)
-  | Id of string (* IDs are always strings *)
-  | Binop of expr * op * expr (* Binary expressions *)
-  | Assign of string * expr (* Assignment is ID + an expression *)
-  | Field of string * string (* Entity id and field id *)
-  | Method of string * string * expr list (* Entity method call *)
-  | Call of string * expr list (* A call has a function name and list of
-                                 arguments, which are all expressions *)
-  | Noexpr (* A "no expression" is an empty expression -- i.e. 'e' used
-              in call_function( the_empty_string ) *)
+| Literal of literal
+| Id of identifier               (* variables and fields *)
+| Call of identifier * expr list (* functions and methods *)
+| Binop of expr * op * expr
+| Assign of identifier * expr
+| Access of identifier * expr    (* array access *)
+| Noexpr
 
-(* Defines the allowable statements *)
 type stmt =
-    Block of stmt list (* Statement can be a list of statements *)
-  | Expr of expr (* A single expression is a valid statement
-                    TODO: Check if this will break in C -- looks valid *)
-  | Return of expr (* Return a value from a function *)
-  | Print of expr (* prints value of the expression *)
-  | If of expr * stmt * stmt
+| Block of stmt list
+| Expr of expr
+| Return of expr
+| If of expr * stmt * stmt
+| For of expr * expr * expr * stmt
+| While of expr * stmt
 
-(* Acting type = type including array declarations *)
-(* To add: floats, instances, boolean *)
-type primitive = Str | Float | Int | Instance
-type array_size = NotAnArray | Dynamic | ArraySize of int
-type acting_type = primitive * array_size
-
-type ret_type = Void | ActingType of acting_type
-type vdecl = acting_type * string
-
-(*
-type ret_type = Void | PrimitiveVariable of primitive
-type vdecl = primitive * string
-*)
+type vdecl = dtype * string
 
 type fdecl = {
-    vtype: ret_type; (* type of function *)
-    fname : string;
-    formals : vdecl list;
-    locals : vdecl list;
-    body : stmt list;
+  rtype : rtype;
+  fname : string;
+  formals : vdecl list;
+  locals : vdecl list;
+  body : stmt list;
 }
 
-type entity_decl = {
-        name : string;
-        members : vdecl list;
-        functions : fdecl list;
+type edecl = {
+  ename : string;
+  fields : vdecl list;
+  methods : fdecl list;
 }
 
-type toplevel_element =
-        | TopLevelFunction of fdecl
-        | TopLevelVar of vdecl
-        | TopLevelEntity of entity_decl
+type program = edecl list
 
-type program = toplevel_element list
+let string_of_op = function
+  | Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
+  | Equal -> "==" | Neq -> "!="
+  | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">="
 
-(* Nice. *)
-let c_equivalents obj = match obj with
-    | Str -> "char **"
-    | Float -> "float"
-    | Int -> "int"
+let rec string_of_dtype = function
+  | Bool -> "bool"
+  | Int -> "int"
+  | String -> "string"
+  | Float -> "float"
+  | Array(t, size) ->
+    string_of_dtype t ^ "[" ^ string_of_int size ^ "]"
+  | Instance(name) -> "instance(" ^ name ^ ")"
 
-(*type array_size = NotAnArray | Dynamic | ArraySize of int
-type acting_type = primitive * array_size  *)
+let string_of_rtype = function
+  | Void -> "function"
+  | ActingType(at) -> string_of_dtype at
 
-(* generating the C code for anything involving arrays is so much
-more complicated than what I had before for non-arrays, so that will be moved
-out of AST. The functions in AST are just for generating convenient strings like
-"float" or "int" *)
-let c_op obj = match obj with
-    | Add -> "+"
-    | Sub -> "-"
-    | Mult -> "*"
-    | Div -> "/"
-    | Equal -> "=="
-    | Neq -> "!="
-    | Less -> "<"
-    | Leq -> "<="
-    | Greater -> ">"
-    | Geq -> ">="
+let rec string_of_literal = function
+  | LitBool(b) -> string_of_bool b
+  | LitInt(b) -> string_of_int b
+  | LitString(s) -> s
+  | LitFloat(f) -> string_of_float f
+  | LitArray(l, size) ->
+    string_of_literal l ^ "[" ^ string_of_int size ^ "]"
+
+let rec string_of_identifier = function
+  | Name(name) -> name
+  | Member(parent, name) -> parent ^ "." ^ name
+
+let rec string_of_expr = function
+  | Literal(lit) -> string_of_literal lit
+  | Id(id) -> string_of_identifier id
+  | Binop(e1, o, e2) ->
+    string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
+  | Assign(id, e) -> string_of_identifier id ^ " = " ^ string_of_expr e
+  | Access(id, e) -> string_of_identifier id ^ "[" ^ string_of_expr e ^ "]"
+  | Call(id, args) ->
+    string_of_identifier id ^
+      "(" ^ String.concat ", " (List.map string_of_expr args) ^ ")"
+  | Noexpr -> ""
+
+let rec string_of_stmt = function
+  | Block(stmts) ->
+    "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+  | Expr(expr) -> string_of_expr expr ^ ";\n";
+  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
+  | If(e, s, Block([])) ->
+    "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
+  | If(e, s1, s2) ->
+    "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s1 ^
+      "else\n" ^ string_of_stmt s2
+  | For(e1, e2, e3, s) ->
+    "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
+      string_of_expr e3  ^ ") " ^ string_of_stmt s
+  | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
+
+let string_of_vdecl (t, id) = string_of_dtype t ^ " " ^ id ^ ";\n"
+
+let string_of_formal (t, id) = string_of_dtype t ^ " " ^ id
+
+let string_of_fdecl fdecl =
+  string_of_rtype fdecl.rtype ^ " " ^ fdecl.fname ^ "(" ^
+    String.concat ", " (List.map string_of_formal fdecl.formals) ^ ")\n{\n" ^
+    String.concat "" (List.map string_of_vdecl fdecl.locals) ^
+    String.concat "" (List.map string_of_stmt fdecl.body) ^
+    "}\n"
+
+let string_of_edecl edecl =
+  "entity " ^ edecl.ename ^ "\n{\n" ^
+    String.concat "" (List.map string_of_vdecl edecl.fields) ^ "\n" ^
+    String.concat "" (List.map string_of_fdecl edecl.methods) ^
+    "}\n"
+
+let string_of_program entities =
+  String.concat "\n" (List.map string_of_edecl entities)

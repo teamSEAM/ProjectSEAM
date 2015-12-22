@@ -1,0 +1,9 @@
+#Test Basic For Loop#
+entity World:
+	func main():
+		int x
+		x=0
+		while(x<=1):
+			screen.out("OUT")
+			x=x+1
+

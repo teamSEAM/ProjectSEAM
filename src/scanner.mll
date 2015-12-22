@@ -1,19 +1,46 @@
 { open Parser }
 
+(* Generally useful regexes *)
+let digit  = ['0'-'9']
+let lower  = ['a'-'z']
+let upper  = ['A'-'Z']
+let letter = (upper | lower)
+let minus  = ['-']
+let plus   = ['+']
+let sign   = (plus | minus)
+let exp    = ['e' 'E'] sign? (digit+)
+
+(* Literals *)
+let lit_bool   = "true" | "false"
+let lit_int    = minus? (digit+)
+let lit_string = '"' [^'"']* '"'
+let lit_float  = minus? (digit*) ['.']? (digit+) (exp)?
+let regex_lit = (lit_bool | lit_int | lit_string | lit_float)
+
+(* Identifiers *)
+let regex_id = (letter | '_') ((letter | digit | '_')*)
+
+(* Primitives *)
+let type_bool     = "bool"
+let type_int      = "int"
+let type_string   = "string"
+let type_float    = "float"
+let type_instance = "instance " regex_id
+let regex_type =
+  (type_bool | type_int | type_string | type_float | type_instance)
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
+| '#'      { comment lexbuf }           (* Comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
-| '['      { LSQUAREBRACE }
-| ']'      { RSQUAREBRACE }
+| '['      { LBRACKET }
+| ']'      { RBRACKET }
 | ';'      { SEMI }
 | ','      { COMMA }
 | '.'      { DOT }
-
-(* a lot of operators *)
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
@@ -25,32 +52,25 @@ rule token = parse
 | "<="     { LEQ }
 | ">"      { GT }
 | ">="     { GEQ }
-
-(* statements *)
-| "if"     {IF}
-| "else"   {ELSE}
+| "if"     { IF }
+| "else"   { ELSE }
+| "for"    { FOR }
+| "while"  { WHILE }
 | "return" { RETURN }
-| "print" { PRINT }
-
-
-(* here's our types *)
-| "string" { STRING }
+| "bool"   { BOOL }
 | "int"    { INT }
-| "float" { FLOAT }
-| "instance" { INSTANCE }
-
-
-(* large level declarations *)
+| "float"  { FLOAT }
+| "string" { STRING }
 | "entity" { ENTITY }
-| "function" { FUNCTION }
-
-(* literals *)
-| ['0'-'9']+ as lxm { INT_LITERAL(int_of_string lxm) }
-| '"' [^'"']*'"'as lxm { STRING_LITERAL(lxm) }
-
-(* IDs are all that should remain *)
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
-
-
+| "func"   { FUNC }
+| lit_bool as b   { LIT_BOOL(bool_of_string b) }
+| lit_int as i    { LIT_INT(int_of_string i) }
+| lit_float as f  { LIT_FLOAT(float_of_string f) }
+| lit_string as s { LIT_STRING(s) }
+| regex_id as id  { ID(id) }
 | eof { EOF }
-| _ as char { raise (Failure("Illegal character: " ^ Char.escaped char)) }
+| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+
+and comment = parse
+  '#' { token lexbuf }
+| _    { comment lexbuf }

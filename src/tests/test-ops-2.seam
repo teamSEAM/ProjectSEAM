@@ -1,6 +1,6 @@
 #TEST ORDER OF OPS#
 entity World:
-	func Main:
+	func Main():
 		if((1+2*6)==13):
 			screen.out("MULT>ADD PASS")
 		else:
@@ -20,6 +20,3 @@ entity World:
 			screen.out("COMPLEX PASS")
 		else:
 			screen.out("COMPLEX FAIL")
-
-
-
