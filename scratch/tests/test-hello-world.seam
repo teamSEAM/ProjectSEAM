@@ -1,4 +1,4 @@
-Entity World:
+entity World:
 	func Main:
 		print("Hello World")
 

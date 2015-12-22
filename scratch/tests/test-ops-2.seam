@@ -1,0 +1,25 @@
+#TEST ORDER OF OPS#
+entity World:
+	func Main:
+		if((1+2*6)==13):
+			screen.out("MULT>ADD PASS")
+		else:
+			screen.out("MULT>ADD FAIL")
+
+		if((10-6/2)==7):
+			screen.out("DIV>SUB PASS")
+		else:
+			screen.out("DIV>SUB FAIL")
+
+		if(10*24/5)==120):
+			screen.out("DIV MULT LR PASS")
+		else:
+			screen.out("DIV MULT LR FAIL")
+
+		if(((5-3)*5)==10):
+			screen.out("COMPLEX PASS")
+		else:
+			screen.out("COMPLEX FAIL")
+
+
+

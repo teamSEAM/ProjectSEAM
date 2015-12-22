@@ -1,0 +1,23 @@
+#Test Basic Ops#
+entity World:
+	func Main:
+		if((1+2)==3):
+			screen.out("Addition PASS")
+		else:
+			screen.out("Addition FAIL")
+
+		if((3-2)==1):
+			screen.out("Subtraction PASS")
+		else:
+			screen.out("Subtraction FAIL")
+
+		if((3*2)==6):
+			screen.out("Multiplication PASS")
+		else:
+			screen.out("Multiplication FAIL")
+
+		if((3/3)==1):
+			screen.out("Division PASS")
+		else:
+			screen.out("Division FAIL")
+
