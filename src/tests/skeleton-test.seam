@@ -1,0 +1,3 @@
+entity World:
+	func start():
+		screen.init(100, 100)
