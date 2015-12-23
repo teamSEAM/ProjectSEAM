@@ -129,7 +129,7 @@ let rec tr_stmt env = function
     let iname = name_of_identifier id in
     let (dtype, _) = find_variable env.scope iname in
     let ename = string_of_dtype dtype in
-    ename ^ "_kill(" ^ (tr_identifier env id) ^ ")"
+    ename ^ "_destroy(" ^ (tr_identifier env id) ^ ");"
 
 let rec tr_formal (typ, name) =
   match typ with
