@@ -1,8 +1,0 @@
-#Script With no World#
-entity World1:
-	func start():
-		print("No World")
-entity World2:
-	func World():
-		print("Func world?")
-

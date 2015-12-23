@@ -37,6 +37,10 @@ let rec find_variable (scope : symbol_table) name =
       Some(parent) -> find_variable parent name
     | _ -> raise (UndeclaredIdentifier name)
 
+let find_function (scope : symbol_table) name =
+  try List.find (fun f -> f.fname = name) scope.current_entity.methods
+  with Not_found -> raise (UndeclaredIdentifier name)
+       
 let add_edecl env edecl = {
   entities = edecl :: env.entities;
   scope = {

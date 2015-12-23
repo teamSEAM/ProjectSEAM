@@ -5,6 +5,7 @@ entity World:
 	string s1
 
 	func start():
+		screen.init(100,100)
 		my_float=1.0
 		my_int=3
 		s1="YO"

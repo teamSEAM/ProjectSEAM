@@ -1,5 +1,6 @@
 #WHAT IS A COLON#
 entity World:
-	function start():
+	func start():
 		screen.out("comment: test.")
+		screen.init(100,100)
 		screen.out("#DOES THIS PRINT?# MAYBE")

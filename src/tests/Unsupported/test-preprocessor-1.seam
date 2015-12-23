@@ -1,0 +1,5 @@
+#this is a comment#
+entity World:
+	func start():
+		screen.out("comment test.")
+		screen.init(100,100)

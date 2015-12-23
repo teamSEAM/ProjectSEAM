@@ -1,4 +1,4 @@
 entity World:
 	func start():
-		print("Hello World")
-
+		screen.out("Hello World")
+		screen.init(100, 100)

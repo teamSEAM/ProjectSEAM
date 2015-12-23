@@ -1,6 +1,7 @@
 entity World:
 	int j
 	func start():
+		screen.init(100,100)
 		j = 33
 		if ( 3 + 5 > true):
 			i = i + 1

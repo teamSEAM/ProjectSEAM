@@ -1,10 +1,10 @@
 #MULTIPLE FUNCTIONS IN ONE WORLD#
-entity World:
-
+entity World:	
 	func do1():
 		screen.out("Do 1")
 	func do2():
 		screen.out("Do 2")
 	func start():
+		screen.init(100, 100)
 		do1()
 		do2()

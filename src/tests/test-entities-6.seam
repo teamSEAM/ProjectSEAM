@@ -1,5 +1,0 @@
-
-entity World:
-	func render():
-		screen.out("Hello Render")
-

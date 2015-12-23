@@ -1,6 +1,7 @@
 # TEST NEGATIVE NUMBERS #
 entity World:
 	func start():
+		screen.init(100,100)
 		if((1+(-2)==-1):
 			screen.out("Addition PASS")
 		else:

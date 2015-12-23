@@ -1,6 +1,7 @@
 #Test Basic For Loop#
 entity World:
 	func start():
+		screen.init(100,100)
 		int x
 		x=0
 		while(x<=1):

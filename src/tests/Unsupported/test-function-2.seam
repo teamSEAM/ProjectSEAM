@@ -1,6 +1,7 @@
 #Tests function calls within a entity#
 entity World:
 	func start():
+		screen.init(100,100)
 		int x
 		x=add(1,2)
 		if(x==3):
