@@ -1,0 +1,88 @@
+entity Player:
+	int x
+	int x_vel
+	texture player
+#
+	func start():
+		x = 130
+		x_vel = 0
+		player = load("player.bmp")
+
+	func step():
+		if(keyboard.keydown(1073741904)): # left #
+			x_vel = x_vel - 5
+
+		if(keyboard.keydown(1073741904)): # right #
+			x_vel = x_vel + 5
+
+		x = x + x_vel
+
+	func render():
+		screen.draw(player, x, 500)
+
+	func stop():
+		unload(player)
+#
+
+entity Block:
+	int x
+	int y
+	int inited
+	texture block
+#
+	func start():
+		inited = 0
+		y = 580
+		block = load("block.bmp")
+
+	func step():
+		if(inited > 0):
+			y -= 30
+
+	func render():
+		if(inited > 0):
+			screen.draw(block, x, y)
+
+	func stop():
+		unload(block)
+#
+
+entity World:
+	<Player> p
+	<Block> b
+	int score
+	int done 
+#
+	func start():
+		screen.init(300, 600)
+		p = spawn Player
+		b = spawn Block
+		b.x = 300
+		b.inited = 1
+		done = 0
+
+	func step():
+		if(done == 0):
+			if(b.y < 550):
+				if(b.y > 450):
+					if( p.x < (b.x + 100) ):
+						if( p.x > (b.x - 40) ):
+							screen.out("Game over!")
+							screen.out(convert.join_string("Your score: ", convert.int_to_str(score))
+							kill p
+							kill b
+			if(b.y > 600):
+				kill b
+				b = spawn Block
+				b.x = player.x
+				b.inited = 1
+				score = score + 1
+
+	func render():
+		screen.set_background(5000) # Blueish #
+
+	func stop():
+		screen.stop()
+#
+
+

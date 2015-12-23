@@ -7,18 +7,11 @@ then
     exit 1
 fi
 
-# Check version
-uname -a | grep -q "Ubuntu"
-if [ "$?" -ne "0" ]
-then
-    echo "Warning: Script only tested on Ubuntu"
-fi
-
 # Check if libsdl2-dev is installed
 dpkg-query -l libsdl2-dev > /dev/null
 if [ "$?" -ne "0" ]
 then
-    echo "Warning: libsdl2-dev not installed! Compilation may fail!"
+    echo "Warning: dpkg/libsdl2-dev not installed! Compilation may fail!"
 fi
 
 cat $1 | ./preprocessor > temp.seami
@@ -28,35 +21,29 @@ then
     echo "Error encountered while compiling: "
     cat gen.c
 
-    #rm temp.seami
-    #rm gen.c
+    rm temp.seami
+    rm gen.c
     exit 1
 else
     echo "Input program translated succesfully; compiling..."
 fi
 
-# Append needed include to start of file; TODO: put in compiler
-
-
-
-# Attention: since we've added the backend, make sure to get the SDL development
-# at apt-get install libsdl2-dev 
-# not sure if this works on Macs, see lazyfoo.net/tutorials/SDL/ the first tutorial
-
-
 # See Google: http://superuser.com/questions/246837/how-do-i-add-text-to-the-beginning-of-a-file-in-bash
 echo "#include \"gen.h\"" | cat - gen.c > temp && mv temp gen.c
 echo "#include \"lib.h\"" | cat - gen.c > temp && mv temp gen.c
 
-echo "void program_ep() { World_spawn(); }" >> gen.c
+echo "\n\nvoid program_ep() { World_spawn(); }" >> gen.c
 
 gcc -g -c lib.c -o lib.o
-# This is their code
 gcc -g -c gen.c -o gen.o
 gcc -g -c main.c -o main.o
 gcc -g main.o lib.o gen.o -lSDL2  -o $2
 
-#rm temp.seami
-#rm gen.c
-
-echo "$2 created."
+if [ "$?" -ne "0" ]
+then
+	echo "Compilation error! Checkout temp.seami and gen.c."
+else
+	rm temp.seami
+	rm gen.c
+	echo "$2 created."
+fi
