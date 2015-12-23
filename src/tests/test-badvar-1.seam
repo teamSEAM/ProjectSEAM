@@ -2,6 +2,9 @@ entity World:
 	func start():
 		int i
 		int j
+		string s_h
 		i
 		j
 		k
+		while (true):
+			s = "hi"

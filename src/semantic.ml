@@ -157,10 +157,11 @@ let rec check_expression env func error_locus expr = match expr with
     let resulttype = match o with
     | Add | Sub | Mult | Div -> type1
     | Equal| Neq | Less | Leq | Greater| Geq ->ActingType(Bool) in
-
-
+    let str1 = rtype_to_str type1 in
+    let str2 = rtype_to_str type2 in
     let env = fst tuple2 in
-    if type1 != type2 then
+
+    if String.compare str1 str2 != 0  then
         let error_type = BinopTypeMismatch (type1, o, type2) in
         let new_error = ( error_locus, error_type) in
         let updated_env = { env with errors = new_error :: env.errors } in
