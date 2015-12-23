@@ -1,3 +1,5 @@
+open Printf
+
 let _ = 
     try 
         let lexbuf = Lexing.from_channel stdin in
@@ -8,9 +10,9 @@ let _ =
                 Compile.translate program
             else
                 (
-                    print_endline verified;
-                    print_endline "Continuing anyways...";
-                    exit 1;
+                    output_string stderr verified;
+                    output_string stderr "Continuing anyways...\n";
+                    Compile.translate program
                 )
             in
         print_endline result;
